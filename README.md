@@ -8,7 +8,34 @@ Goose AEO queries AI providers (Perplexity, ChatGPT, Gemini, Grok, Claude, DeepS
 
 Everything runs locally -- your data stays on your machine in a SQLite database.
 
-## Quick Start
+## Quick Start -- Claude Code
+
+The easiest way to use Goose AEO is with [Claude Code](https://docs.anthropic.com/en/docs/claude-code). The repo includes slash commands that handle everything interactively.
+
+**1. Clone and open in Claude Code:**
+
+```bash
+git clone https://github.com/athina-ai/goose-aeo.git
+cd goose-aeo
+npm install && npm run build
+```
+
+**2. Use the slash commands:**
+
+| Command | What it does |
+|---------|-------------|
+| `/aeo-setup` | Interactive setup -- asks for your domain, detects competitors, configures providers, generates queries |
+| `/aeo-run` | Runs your queries against AI engines, analyzes responses, and presents a conversational report with insights |
+| `/aeo-audit` | Scrapes your website and scores each page for AI search readability across 6 dimensions |
+| `/aeo-recommend` | Analyzes your latest run and generates actionable recommendations for improving visibility |
+
+Just type `/aeo-setup` in Claude Code to get started. It will walk you through everything -- no need to learn CLI flags or remember command sequences.
+
+The slash commands handle cost estimation, error recovery, and present results as conversational summaries instead of raw data.
+
+## Quick Start -- Manual (CLI)
+
+If you prefer running commands directly:
 
 ```bash
 # Initialize for your domain (interactive -- prompts for API keys)
@@ -24,7 +51,7 @@ npx goose-aeo report
 npx goose-aeo dashboard
 ```
 
-That's it. Five commands to go from zero to a full AEO report.
+Five commands to go from zero to a full AEO report.
 
 ## What You'll Need
 
