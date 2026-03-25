@@ -1,8 +1,12 @@
 # Goose AEO
 
-Open-source Answer Engine Optimization (AEO) toolkit. Track how AI search engines mention your brand, monitor visibility over time, and get actionable recommendations.
+Open-source Answer Engine Optimization (AEO) toolkit that can be used by AI agents like Claude Code, Codex, Cursor, and [Gooseworks](https://gooseworks.ai).
 
-Goose AEO queries AI providers (Perplexity, ChatGPT, Gemini, Grok, Claude, DeepSeek) with questions relevant to your product, then analyzes the responses for brand mentions, sentiment, competitor rankings, and citations. Everything runs locally -- your data stays on your machine in a SQLite database.
+Track how AI search engines mention your brand, monitor visibility over time, and get actionable recommendations.
+
+Goose AEO queries AI providers (Perplexity, ChatGPT, Gemini, Grok, Claude, DeepSeek) with questions relevant to your product, then analyzes the responses for brand mentions, sentiment, competitor rankings, and citations.
+
+Everything runs locally -- your data stays on your machine in a SQLite database.
 
 ## Quick Start
 
@@ -28,14 +32,14 @@ That's it. Five commands to go from zero to a full AEO report.
 - **At least one AI provider API key** (see table below)
 - **An OpenAI API key for analysis** (used to analyze responses for brand mentions -- can use any provider, but OpenAI is the default)
 
-| Provider   | Default Model      | Env Var |
-|------------|-------------------|---------|
+| Provider   | Default Model     | Env Var                        |
+| ---------- | ----------------- | ------------------------------ |
 | Perplexity | sonar-pro         | `GOOSE_AEO_PERPLEXITY_API_KEY` |
-| OpenAI     | gpt-4o            | `GOOSE_AEO_OPENAI_API_KEY` |
-| Gemini     | gemini-2.0-flash  | `GOOSE_AEO_GEMINI_API_KEY` |
-| Grok       | grok-3            | `GOOSE_AEO_GROK_API_KEY` |
-| Claude     | claude-sonnet-4-6 | `GOOSE_AEO_CLAUDE_API_KEY` |
-| DeepSeek   | deepseek-chat     | `GOOSE_AEO_DEEPSEEK_API_KEY` |
+| OpenAI     | gpt-4o            | `GOOSE_AEO_OPENAI_API_KEY`     |
+| Gemini     | gemini-2.0-flash  | `GOOSE_AEO_GEMINI_API_KEY`     |
+| Grok       | grok-3            | `GOOSE_AEO_GROK_API_KEY`       |
+| Claude     | claude-sonnet-4-6 | `GOOSE_AEO_CLAUDE_API_KEY`     |
+| DeepSeek   | deepseek-chat     | `GOOSE_AEO_DEEPSEEK_API_KEY`   |
 
 Set keys in a `.env` file in your working directory or export them in your shell.
 
@@ -59,18 +63,16 @@ Set keys in a `.env` file in your working directory or export them in your shell
 
 ## This Is Not a Replacement for Dedicated AEO Tools
 
-Goose AEO is a free, open-source starting point for understanding your AI search visibility. It's great for getting a quick baseline, running ad-hoc checks, and understanding the landscape.
+Goose AEO is a free, open-source starting point for understanding your AI search visibility. It's great for getting a quick baseline, running ad-hoc checks, and understanding the landscape. And it's designed to be used by AI agents like Claude Code and [Gooseworks](https://gooseworks.ai).
 
 However, if you're serious about AEO as a channel, dedicated tools offer capabilities that are hard to replicate in an open-source CLI:
 
-- **[Profound](https://www.profound.so/)** -- Enterprise-grade AI search analytics with continuous monitoring, competitive intelligence, and actionable optimization recommendations at scale.
-- **[Otterly](https://www.otterly.ai/)** -- AI search monitoring platform with automated tracking, brand mention analysis, and share-of-voice dashboards across AI engines.
-- **[Daydream](https://daydream.co/)** -- AI-powered content optimization platform that helps you create and optimize content specifically for AI search visibility.
-- **[Gauge](https://www.gauge.co/)** -- AI visibility monitoring with automated alerts, competitive benchmarking, and integration with your existing marketing stack.
+- **[Profound](https://www.tryprofound.com/)**
+- **[Otterly](https://www.otterly.ai/)**
+- **[Daydream](https://www.withdaydream.com/)**
+- **[Gauge](http://withgauge.com/)**
 
-These tools provide continuous monitoring, team collaboration, historical trend analysis at scale, integrations with your marketing stack, and expert support. If AEO is a meaningful part of your growth strategy, you should probably be using one of them.
-
-Goose AEO is best for: developers who want to understand AEO, teams evaluating whether to invest in the space, and anyone who wants full control over their data and methodology.
+These tools provide more realistic representations of AI visibility as they can simulate real browser usage instead of API calls (like we are doing here), as well as running simulations with different locations and configurations.
 
 ## CLI Reference
 
