@@ -12,7 +12,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsup",
     "test": "vitest run",
     "lint": "tsc --noEmit -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
@@ -45,17 +45,25 @@
     "url": "https://github.com/athina-ai/goose-aeo/issues"
   },
   "dependencies": {
-    "@goose-aeo/core": "0.1.0",
     "@modelcontextprotocol/sdk": "^1.18.1",
     "commander": "^14.0.1",
     "dotenv": "^17.3.1",
+    "drizzle-orm": "^0.44.7",
     "express": "^4.21.2",
     "inquirer": "^12.10.0",
+    "nodemailer": "^7.0.7",
     "open": "^10.1.2",
-    "ora": "^7.0.1"
+    "openai": "^6.7.0",
+    "ora": "^7.0.1",
+    "p-limit": "^6.2.0",
+    "sql.js": "^1.12.0",
+    "yaml": "^2.8.1",
+    "zod": "^3.24.4"
   },
   "devDependencies": {
+    "@goose-aeo/core": "file:../core",
     "@types/node": "^20.17.50",
+    "tsup": "^8.5.0",
     "tsx": "^4.21.0",
     "vitest": "^3.2.4"
   }
