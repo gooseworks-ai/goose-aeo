@@ -1,0 +1,12 @@
+node_modules
+dist
+*.db
+*.db-shm
+*.db-wal
+coverage
+.env
+.turbo
+tmp
+.DS_Store
+.goose-aeo.yml
+package-lock.json

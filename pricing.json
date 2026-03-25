@@ -1,0 +1,53 @@
+{
+  "providers": {
+    "perplexity": {
+      "model": "sonar-pro",
+      "cost_per_1k_input_tokens": 0.003,
+      "cost_per_1k_output_tokens": 0.015,
+      "avg_input_tokens": 50,
+      "avg_output_tokens": 400
+    },
+    "openai": {
+      "model": "gpt-5.4",
+      "cost_per_1k_input_tokens": 0.0025,
+      "cost_per_1k_output_tokens": 0.015,
+      "avg_input_tokens": 50,
+      "avg_output_tokens": 500
+    },
+    "gemini": {
+      "model": "gemini-3.1-pro",
+      "cost_per_1k_input_tokens": 0.002,
+      "cost_per_1k_output_tokens": 0.012,
+      "avg_input_tokens": 50,
+      "avg_output_tokens": 350
+    },
+    "grok": {
+      "model": "grok-4.20",
+      "cost_per_1k_input_tokens": 0.003,
+      "cost_per_1k_output_tokens": 0.015,
+      "avg_input_tokens": 50,
+      "avg_output_tokens": 450
+    },
+    "claude": {
+      "model": "claude-sonnet-4-6",
+      "cost_per_1k_input_tokens": 0.003,
+      "cost_per_1k_output_tokens": 0.015,
+      "avg_input_tokens": 80,
+      "avg_output_tokens": 500
+    },
+    "deepseek": {
+      "model": "deepseek-v4",
+      "cost_per_1k_input_tokens": 0.0003,
+      "cost_per_1k_output_tokens": 0.0005,
+      "avg_input_tokens": 50,
+      "avg_output_tokens": 400
+    }
+  },
+  "analysis": {
+    "model": "gpt-5.4-mini",
+    "cost_per_1k_input_tokens": 0.00075,
+    "cost_per_1k_output_tokens": 0.0045,
+    "avg_input_tokens": 800,
+    "avg_output_tokens": 350
+  }
+}

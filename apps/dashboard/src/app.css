@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@source "../../../packages/ui/src/**/*.tsx";
+@source "../../../packages/ui/src/**/*.ts";
+
+body {
+  margin: 0;
+  background: #f2f1f0;
+  color: #0c0a09;
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}

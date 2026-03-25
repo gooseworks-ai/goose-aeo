@@ -1,0 +1,47 @@
+{
+  "name": "@goose-aeo/core",
+  "version": "0.1.0",
+  "description": "Core library for Goose AEO - Answer Engine Optimization toolkit",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "lint": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "author": "Athina AI",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/athina-ai/goose-aeo.git",
+    "directory": "packages/core"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.44.7",
+    "nodemailer": "^7.0.7",
+    "openai": "^6.7.0",
+    "p-limit": "^6.2.0",
+    "sql.js": "^1.12.0",
+    "yaml": "^2.8.1",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.50",
+    "@types/nodemailer": "^7.0.2",
+    "@types/sql.js": "^1.4.10",
+    "vitest": "^3.2.4"
+  }
+}
