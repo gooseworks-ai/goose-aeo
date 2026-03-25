@@ -8,6 +8,9 @@ Goose AEO queries AI providers (Perplexity, ChatGPT, Gemini, Grok, Claude, DeepS
 
 Everything runs locally -- your data stays on your machine in a SQLite database.
 
+<img width="6678" height="4456" alt="image" src="https://github.com/user-attachments/assets/3e14380d-ec5d-4919-9cbf-b932a54f828e" />
+
+
 ## Quick Start -- Claude Code
 
 The easiest way to use Goose AEO is with [Claude Code](https://docs.anthropic.com/en/docs/claude-code). The repo includes slash commands that handle everything interactively.
