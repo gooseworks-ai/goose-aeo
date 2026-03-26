@@ -15,6 +15,7 @@ import {
   type RunCreateOptions,
 } from '@goose-aeo/core'
 import { startMCPServer } from './mcp/server.js'
+import { getBanner } from './banner.js'
 
 const program = new Command()
 
@@ -93,6 +94,7 @@ program
   .name('goose-aeo')
   .description('Goose AEO CLI')
   .version('0.1.0')
+  .addHelpText('beforeAll', getBanner())
 
 program
   .command('init')
