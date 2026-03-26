@@ -15,7 +15,7 @@ If `.goose-aeo.yml` doesn't exist, tell the user: "AEO hasn't been set up yet. S
 If it exists, check the current state:
 
 ```bash
-npx goose-aeo status --json
+npx goose-aeo@latest status --json
 ```
 
 Show the user a brief summary: company name, number of queries, number of previous runs.
@@ -25,7 +25,7 @@ Show the user a brief summary: company name, number of queries, number of previo
 Run a dry-run to estimate cost:
 
 ```bash
-npx goose-aeo run --dry-run --json
+npx goose-aeo@latest run --dry-run --json
 ```
 
 Parse the JSON and tell the user:
@@ -41,7 +41,7 @@ Do NOT proceed without explicit user confirmation.
 ## Step 3: Execute Run
 
 ```bash
-npx goose-aeo run --confirm --json
+npx goose-aeo@latest run --confirm --json
 ```
 
 This may take several minutes. Tell the user it's running and to hang tight.
@@ -55,7 +55,7 @@ Parse the result and show:
 ## Step 4: Analyze Results
 
 ```bash
-npx goose-aeo analyze --json
+npx goose-aeo@latest analyze --json
 ```
 
 Show brief progress: "Analyzing responses for brand mentions..."
@@ -68,7 +68,7 @@ Parse the result and note:
 ## Step 5: Generate Report
 
 ```bash
-npx goose-aeo report --json
+npx goose-aeo@latest report --json
 ```
 
 Parse the JSON report and present a **conversational summary** to the user. Do NOT just dump raw numbers. Structure it like this:
@@ -100,7 +100,7 @@ Based on the results, suggest 2-3 things the user could do:
 ## Step 6: Next Steps
 
 Offer the user these options:
-1. **"See the dashboard"** — Run `npx goose-aeo dashboard` to open a visual dashboard. If the user is working from a client subdirectory (e.g., `gooseworks/`), use `npx goose-aeo dashboard <client-dir>` from the parent directory instead.
+1. **"See the dashboard"** — Run `npx goose-aeo@latest dashboard` to open a visual dashboard. If the user is working from a client subdirectory (e.g., `gooseworks/`), use `npx goose-aeo@latest dashboard <client-dir>` from the parent directory instead.
 2. **"Compare with a previous run"** — If there are 2+ runs, offer to run a diff
 3. **"Set up a schedule"** — Ask if they want weekly or daily automated runs
 4. **"Refine queries"** — If results suggest some queries aren't relevant, offer to adjust

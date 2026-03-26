@@ -19,12 +19,6 @@ Do NOT proceed until you have at least the company domain.
 
 ## Step 2: Check Prerequisites
 
-Build the CLI if needed:
-
-```bash
-ls packages/cli/dist/index.js 2>/dev/null || npm run build
-```
-
 Check which API keys are available:
 ```bash
 node -e "
@@ -53,7 +47,7 @@ The GOOSE_AEO_OPENAI_API_KEY is also needed for query generation and analysis (n
 Run the init command non-interactively. Build the flags from what the user told you:
 
 ```bash
-npx goose-aeo init \
+npx goose-aeo@latest init \
   --domain <domain> \
   --name "<company name>" \
   --providers <comma-separated-providers> \
@@ -77,22 +71,22 @@ If the user wants changes, edit the `.goose-aeo.yml` file directly using the Edi
 Generate a small batch for the user to review:
 
 ```bash
-npx goose-aeo queries generate --limit 10 --dry-run --json
+npx goose-aeo@latest queries generate --limit 10 --dry-run --json
 ```
 
 Show the queries to the user in a readable numbered list. Ask: "Do these queries look like the kind of things your potential customers would search for? Want to adjust anything?"
 
 If the user wants changes:
 - If the queries are off-topic, check the company description in `.goose-aeo.yml` and update it to be more accurate, then re-generate.
-- If specific queries should be added, use: `npx goose-aeo queries add "<query text>" --json`
-- If specific queries should be removed after generation, use: `npx goose-aeo queries remove <id> --json`
+- If specific queries should be added, use: `npx goose-aeo@latest queries add "<query text>" --json`
+- If specific queries should be removed after generation, use: `npx goose-aeo@latest queries remove <id> --json`
 
 ## Step 5: Generate Full Query Set
 
 Once the user approves the direction, generate the full set:
 
 ```bash
-npx goose-aeo queries generate --limit 50 --json
+npx goose-aeo@latest queries generate --limit 50 --json
 ```
 
 Tell the user how many queries were generated.
@@ -107,14 +101,13 @@ Tell the user:
 
 If the user initialized inside a client subdirectory (e.g., `gooseworks/`, `athina/`), remind them that the dashboard can be opened from the parent directory with:
 ```bash
-npx goose-aeo dashboard <client-dir>
+npx goose-aeo@latest dashboard <client-dir>
 ```
 
 Ask if they want to run their first analysis right now. If yes, proceed with the `/aeo-run` flow (run the commands from that skill inline).
 
 ## Error Handling
 
-- If `npm run build` fails, show the error and ask the user to check their Node.js version (requires >= 20).
-- If init fails, show the error. Common issues: missing API keys, invalid domain format.
+- If init fails, show the error. Common issues: missing API keys, invalid domain format, Node.js version < 20.
 - If query generation fails, it usually means the OpenAI API key is missing or invalid.
 - Never silently swallow errors — always show them to the user and suggest a fix.

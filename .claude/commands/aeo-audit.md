@@ -15,7 +15,7 @@ If `.goose-aeo.yml` doesn't exist, tell the user: "AEO hasn't been set up yet. S
 If it exists, check the current state:
 
 ```bash
-npx goose-aeo status --json
+npx goose-aeo@latest status --json
 ```
 
 Show the user a brief summary: company name, domain, number of queries.
@@ -23,7 +23,7 @@ Show the user a brief summary: company name, domain, number of queries.
 ## Step 2: Run the Audit
 
 ```bash
-npx goose-aeo audit --json
+npx goose-aeo@latest audit --json
 ```
 
 This may take a minute or two as it scrapes pages and scores each one with an LLM. Tell the user it's running.

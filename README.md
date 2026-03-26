@@ -17,16 +17,16 @@ No installation required -- just run with `npx`:
 
 ```bash
 # Initialize for your domain (interactive -- prompts for API keys)
-npx goose-aeo init
+npx goose-aeo@latest init
 
 # Generate search queries, run them, analyze, and view a report
-npx goose-aeo queries generate --limit 50
-npx goose-aeo run --confirm
-npx goose-aeo analyze
-npx goose-aeo report
+npx goose-aeo@latest queries generate --limit 50
+npx goose-aeo@latest run --confirm
+npx goose-aeo@latest analyze
+npx goose-aeo@latest report
 
 # Open the local dashboard
-npx goose-aeo dashboard
+npx goose-aeo@latest dashboard
 ```
 
 Five commands to go from zero to a full AEO report.

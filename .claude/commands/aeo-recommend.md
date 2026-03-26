@@ -15,7 +15,7 @@ If `.goose-aeo.yml` doesn't exist, tell the user: "AEO hasn't been set up yet. S
 If it exists, check the current state:
 
 ```bash
-npx goose-aeo status --json
+npx goose-aeo@latest status --json
 ```
 
 Show the user a brief summary: company name, number of queries, number of previous runs. If there are no runs, tell the user: "No runs found. Use `/aeo-run` to run an analysis first."
@@ -23,7 +23,7 @@ Show the user a brief summary: company name, number of queries, number of previo
 ## Step 2: Generate Recommendations
 
 ```bash
-npx goose-aeo recommend --json
+npx goose-aeo@latest recommend --json
 ```
 
 This calls the OpenAI API to synthesize analysis data into recommendations. Tell the user it's generating and may take a moment.
@@ -62,7 +62,7 @@ Based on the recommendations, offer the user these options:
 2. **"Want me to create a comparison page?"** — If competitors are being mentioned instead, offer to draft a vs/comparison page.
 3. **"Want me to write a guest post pitch for [domain]?"** — If there are source opportunities with specific domains, offer to draft an outreach email or guest post pitch.
 4. **"Want me to update your queries?"** — If the recommendations suggest new query angles, offer to add them.
-5. **"See the dashboard"** — Suggest opening `npx goose-aeo dashboard` for visual exploration.
+5. **"See the dashboard"** — Suggest opening `npx goose-aeo@latest dashboard` for visual exploration.
 
 ## Error Handling
 

@@ -36,7 +36,7 @@ export class ScheduleService {
   private toStatus = (schedule: string | null): ScheduleStatus => {
     const cron = scheduleToCron(schedule)
     const suggestedCronCommand = cron
-      ? `${cron} cd \"${this.ctx.cwd}\" && npx goose-aeo run --confirm && npx goose-aeo analyze`
+      ? `${cron} cd \"${this.ctx.cwd}\" && npx goose-aeo@latest run --confirm && npx goose-aeo@latest analyze`
       : null
 
     return {
