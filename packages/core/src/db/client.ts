@@ -113,6 +113,30 @@ CREATE TABLE IF NOT EXISTS run_metrics (
   value REAL NOT NULL,
   created_at INTEGER NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS audits (
+  id TEXT PRIMARY KEY,
+  company_id TEXT NOT NULL REFERENCES companies(id),
+  overall_score REAL NOT NULL,
+  pages TEXT NOT NULL,
+  recommendations TEXT NOT NULL,
+  model TEXT NOT NULL,
+  cost_usd REAL,
+  created_at INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS recommendations (
+  id TEXT PRIMARY KEY,
+  run_id TEXT NOT NULL REFERENCES runs(id),
+  company_id TEXT NOT NULL REFERENCES companies(id),
+  visibility_gaps TEXT NOT NULL,
+  source_opportunities TEXT NOT NULL,
+  competitor_insights TEXT NOT NULL,
+  summary TEXT NOT NULL,
+  model TEXT NOT NULL,
+  cost_usd REAL,
+  created_at INTEGER NOT NULL
+);
 `
 
 export const createSqliteDb = async (dbPath: string): Promise<SqliteDb> => {
