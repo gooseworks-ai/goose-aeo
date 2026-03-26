@@ -137,6 +137,79 @@ export async function startDashboardServer(options: ServerOptions = {}) {
     }
   })
 
+  app.get('/api/query-visibility', async (_req, res) => {
+    try {
+      const payload = await withClient(options, (client) => client.dashboard.queryVisibility())
+      res.json(payload)
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) })
+    }
+  })
+
+  app.get('/api/trends', async (req, res) => {
+    try {
+      const metric = (req.query.metric as string) ?? 'visibility_rate'
+      const last = parseIntParam(req.query.last as string | undefined, 10)
+      const payload = await withClient(options, (client) => client.dashboard.trends(metric, last))
+      res.json(payload)
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) })
+    }
+  })
+
+  app.get('/api/runs/:id/competitors', async (req, res) => {
+    try {
+      const payload = await withClient(options, (client) => client.dashboard.competitors(req.params.id))
+      res.json(payload)
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) })
+    }
+  })
+
+  app.get('/api/runs/:id/citations', async (req, res) => {
+    try {
+      const payload = await withClient(options, (client) => client.dashboard.citations(req.params.id))
+      res.json(payload)
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) })
+    }
+  })
+
+  app.get('/api/runs/:id/recommendations', async (req, res) => {
+    try {
+      const payload = await withClient(options, (client) => client.dashboard.recommendations(req.params.id))
+      if (!payload) {
+        res.json({ error: 'No recommendations found for this run' })
+        return
+      }
+      res.json(payload)
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) })
+    }
+  })
+
+  app.get('/api/audits', async (_req, res) => {
+    try {
+      const payload = await withClient(options, (client) => client.dashboard.audits())
+      res.json(payload)
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) })
+    }
+  })
+
+  app.get('/api/audits/:id', async (req, res) => {
+    try {
+      const payload = await withClient(options, (client) => client.dashboard.audit(req.params.id))
+      if (!payload) {
+        res.status(404).json({ error: 'Audit not found' })
+        return
+      }
+      res.json(payload)
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) })
+    }
+  })
+
   const staticRoot = path.resolve(appRoot, 'dist/public')
   if (existsSync(staticRoot)) {
     app.use(express.static(staticRoot))

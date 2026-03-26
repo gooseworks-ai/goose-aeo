@@ -99,6 +99,12 @@ export class AEOClient {
       this.dashboardService.getRunResults(args),
     queries: () => this.dashboardService.getQueries(),
     queryVisibility: () => this.dashboardService.getQueryVisibility(),
+    competitors: (runId: string) => this.dashboardService.getCompetitors(runId),
+    citations: (runId: string) => this.dashboardService.getCitations(runId),
+    trends: (metric: string, last: number) => this.dashboardService.getTrends(metric, last),
+    audits: () => this.dashboardService.getAudits(),
+    audit: (auditId: string) => this.dashboardService.getAudit(auditId),
+    recommendations: (runId: string) => this.dashboardService.getRecommendations(runId),
   }
 
   audit = async (input?: AuditInput): Promise<AuditResult> => {

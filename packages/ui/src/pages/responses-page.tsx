@@ -557,7 +557,7 @@ export function ResponsesPage({ initialFilters, onNavigate }: ResponsesPageProps
         {metrics.avgProminence !== -1 && (
           <MetricCard
             label="Avg Prominence"
-            value={`${(metrics.avgProminence * 100).toFixed(0)}%`}
+            value={`${(metrics.avgProminence * 10).toFixed(0)}%`}
             subtitle={`Across ${metrics.mentionedCount} mentioned responses`}
           />
         )}
@@ -671,7 +671,7 @@ export function ResponsesPage({ initialFilters, onNavigate }: ResponsesPageProps
                           <div className="px-4 py-3">
                             <span className="text-xs font-medium uppercase tracking-wider text-[#78716c] block mb-0.5">Prominence</span>
                             <span className="text-sm font-medium text-[#0c0a09]">
-                              {prominence !== null && prominence !== undefined ? `${(prominence * 100).toFixed(0)}%` : '—'}
+                              {prominence !== null && prominence !== undefined ? `${(prominence * 10).toFixed(0)}%` : '—'}
                             </span>
                           </div>
                           <div className="px-4 py-3">

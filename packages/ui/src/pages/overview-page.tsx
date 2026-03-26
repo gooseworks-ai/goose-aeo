@@ -153,7 +153,7 @@ export function OverviewPage({ onNavigate }: OverviewPageProps) {
         />
         <MetricCard
           label="Avg Prominence"
-          value={mentionedCount > 0 ? `${(avgProminence * 100).toFixed(0)}%` : '—'}
+          value={mentionedCount > 0 ? `${(avgProminence * 10).toFixed(0)}%` : '—'}
           subtitle={mentionedCount > 0 ? `Across ${mentionedCount} mentioned responses` : 'No mentions yet'}
         />
         <MetricCard
