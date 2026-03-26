@@ -13,36 +13,43 @@ Everything runs locally -- your data stays on your machine in a SQLite database.
 
 ## Quick Start
 
-No installation required -- just run with `npx`:
+Install the skill and run it in [Claude Code](https://docs.anthropic.com/en/docs/claude-code):
 
 ```bash
-# Initialize for your domain (interactive -- prompts for API keys)
-npx goose-aeo@latest init
+# Install the AEO skill
+npx goose-skills install aeo --claude
 
-# Generate search queries, run them, analyze, and view a report
+# Start Claude Code
+claude
+
+# Run the skill
+/aeo
+```
+
+The `/aeo` skill handles everything interactively -- setup, query generation, running, analysis, and reporting.
+
+You can also use the individual skills directly:
+
+| Command | What it does |
+|---------|-------------|
+| `/aeo` | Full interactive flow -- setup, run, analyze, and report |
+| `/aeo-setup` | Just the setup -- domain, competitors, providers, query generation |
+| `/aeo-run` | Just the run -- queries AI engines, analyzes responses, presents report |
+| `/aeo-audit` | Scrapes your website and scores each page for AI search readability |
+| `/aeo-recommend` | Generates actionable recommendations for improving visibility |
+
+### Using the CLI directly
+
+If you're not using Claude Code, you can run the CLI directly with `npx`:
+
+```bash
+npx goose-aeo@latest init
 npx goose-aeo@latest queries generate --limit 50
 npx goose-aeo@latest run --confirm
 npx goose-aeo@latest analyze
 npx goose-aeo@latest report
-
-# Open the local dashboard
 npx goose-aeo@latest dashboard
 ```
-
-Five commands to go from zero to a full AEO report.
-
-### Using with Claude Code
-
-If you use [Claude Code](https://docs.anthropic.com/en/docs/claude-code), you can run Goose AEO through interactive slash commands instead of CLI flags:
-
-| Command | What it does |
-|---------|-------------|
-| `/aeo-setup` | Interactive setup -- asks for your domain, detects competitors, configures providers, generates queries |
-| `/aeo-run` | Runs your queries against AI engines, analyzes responses, and presents a conversational report with insights |
-| `/aeo-audit` | Scrapes your website and scores each page for AI search readability across 6 dimensions |
-| `/aeo-recommend` | Analyzes your latest run and generates actionable recommendations for improving visibility |
-
-Just type `/aeo-setup` in Claude Code to get started. The slash commands handle cost estimation, error recovery, and present results as conversational summaries instead of raw data.
 
 ## What You'll Need
 
@@ -210,7 +217,7 @@ providers:
 
 analysis:
   provider: openai
-  model: gpt-5.4-mini
+  model: gpt-5.4
 
 query_limit: 100
 db_path: ./goose-aeo.db
