@@ -1,3 +1,5 @@
+import { cpSync, existsSync } from 'node:fs'
+import path from 'node:path'
 import { defineConfig } from 'tsup'
 
 export default defineConfig({
@@ -13,5 +15,13 @@ export default defineConfig({
   noExternal: ['@goose-aeo/core'],
   banner: {
     js: '#!/usr/bin/env node',
+  },
+  onSuccess: async () => {
+    // Copy pre-built dashboard static assets into dist/public so they ship with the CLI package.
+    const dashboardPublic = path.resolve('../../apps/dashboard/dist/public')
+    const target = path.resolve('dist/public')
+    if (existsSync(dashboardPublic)) {
+      cpSync(dashboardPublic, target, { recursive: true })
+    }
   },
 })

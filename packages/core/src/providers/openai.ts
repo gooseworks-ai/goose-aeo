@@ -75,7 +75,7 @@ const callOpenAI = async (
     model: config.model,
     messages: [{ role: 'user', content: query }],
     temperature: config.temperature ?? 0,
-    max_tokens: config.maxTokens ?? 1024,
+    max_completion_tokens: config.maxTokens ?? 1024,
   }
 
   if (withWebSearch) {

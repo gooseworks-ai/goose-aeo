@@ -81,7 +81,7 @@ Return a JSON array of exactly ${args.limit} query strings. No explanations, no 
     model: args.model,
     messages: [{ role: 'user', content: prompt }],
     temperature: 0,
-    max_tokens: 2000,
+    max_completion_tokens: 2000,
   })
 
   const content = completion.choices[0]?.message?.content ?? '[]'

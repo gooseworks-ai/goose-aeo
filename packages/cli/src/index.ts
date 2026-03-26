@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { appendFileSync, existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
-import { pathToFileURL, fileURLToPath } from 'node:url'
+import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'node:child_process'
 import { Command } from 'commander'
 import inquirer from 'inquirer'
@@ -648,42 +648,44 @@ program
   .option('--pricing-config <path>', 'pricing config path')
   .action(async (options) => {
     try {
-      const workspaceRoot = resolveGooseAeoWorkspaceRoot()
-      const dashboardRoot = path.resolve(workspaceRoot, 'apps/dashboard')
-      const serverEntry = path.resolve(dashboardRoot, 'dist/server.js')
+      // Resolve static assets: check bundled location first, then monorepo fallback
+      const cliDir = path.dirname(fileURLToPath(import.meta.url))
+      let staticRoot = path.resolve(cliDir, 'public')
 
-      if (!existsSync(serverEntry)) {
-        process.stdout.write('Building dashboard assets...\n')
-        const buildResult = spawnSync(
-          'npm',
-          ['run', 'build', '--workspace', 'goose-aeo-dashboard'],
-          {
-            cwd: workspaceRoot,
-            stdio: 'inherit',
-          },
-        )
+      if (!existsSync(staticRoot)) {
+        const workspaceRoot = resolveGooseAeoWorkspaceRoot()
+        const dashboardRoot = path.resolve(workspaceRoot, 'apps/dashboard')
+        const monorepoStatic = path.resolve(dashboardRoot, 'dist/public')
 
-        if (buildResult.status !== 0) {
-          throw new Error('Failed to build dashboard package.')
+        if (!existsSync(monorepoStatic)) {
+          process.stdout.write('Building dashboard assets...\n')
+          const buildResult = spawnSync(
+            'npm',
+            ['run', 'build', '--workspace', 'goose-aeo-dashboard'],
+            {
+              cwd: workspaceRoot,
+              stdio: 'inherit',
+            },
+          )
+
+          if (buildResult.status !== 0) {
+            process.stdout.write('Warning: Could not build dashboard UI. API endpoints will still be available.\n')
+          }
+        }
+
+        if (existsSync(monorepoStatic)) {
+          staticRoot = monorepoStatic
         }
       }
 
-      const dashboardModule = (await import(pathToFileURL(serverEntry).href)) as {
-        startDashboardServer: (args: {
-          port: number
-          configPath?: string
-          pricingPath?: string
-          dataCwd: string
-          appRoot: string
-        }) => Promise<{ close: () => Promise<void> }>
-      }
+      const { startDashboardServer } = await import('./dashboard-server.js')
 
-      await dashboardModule.startDashboardServer({
+      await startDashboardServer({
         port: options.port,
         configPath: options.config as string | undefined,
         pricingPath: options.pricingConfig as string | undefined,
         dataCwd: process.cwd(),
-        appRoot: dashboardRoot,
+        staticRoot,
       })
 
       const url = `http://localhost:${options.port}`
