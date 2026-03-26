@@ -11,6 +11,7 @@ const toCamelConfig = (raw: ReturnType<typeof rawConfigSchema.parse>): GooseAEOC
     domain: raw.domain,
     name: raw.name,
     description: raw.description,
+    aliases: raw.aliases,
     competitors: raw.competitors,
     providers: raw.providers,
     analysis: {
@@ -37,6 +38,7 @@ const toRawConfig = (config: GooseAEOConfig): unknown => {
     domain: config.domain,
     name: config.name,
     description: config.description,
+    aliases: config.aliases,
     competitors: config.competitors,
     providers: config.providers,
     analysis: config.analysis,

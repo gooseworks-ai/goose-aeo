@@ -2,6 +2,7 @@ import { and, desc, eq, inArray } from 'drizzle-orm'
 import OpenAI from 'openai'
 import { analysisOutputSchema, type AnalysisOutput } from '../analysis/schema.js'
 import { analysisResults, providerResponses, queries, runs } from '../db/schema.js'
+import { buildAliases, findBrandMentions, type BrandMatchResult } from '../utils/brand-matching.js'
 import { idWithPrefix, nowEpochMs } from '../utils/id.js'
 import { safeJsonParse, stripCodeFences } from '../utils/json.js'
 import { normalizeDomain } from '../utils/domain.js'
@@ -45,6 +46,7 @@ const buildPrompt = (args: {
   query: string
   responseText: string
   sourceHint: SourceHit
+  brandMatch: BrandMatchResult
 }) => {
   return `You are analyzing an AI assistant's response to determine if a specific company was mentioned, how prominently, and how it compared to competitors.
 
@@ -66,6 +68,10 @@ ${args.responseText}
 
 Deterministic source citation pre-check hint:
 ${JSON.stringify(args.sourceHint)}
+
+Deterministic brand-string pre-check:
+${JSON.stringify(args.brandMatch)}
+NOTE: If the pre-check found the brand string in the text (found=true), the company IS mentioned — your "mentioned" field MUST be true. Focus on characterizing the mention (type, prominence, sentiment).
 
 Return ONLY a valid JSON object matching this exact schema. No explanation, no markdown, just JSON:
 
@@ -97,10 +103,10 @@ const parseAnalysis = (payload: string): AnalysisOutput => {
   return analysisOutputSchema.parse(parsed)
 }
 
-const defaultAnalysisOutput = (sourceHint: SourceHit, note: string): AnalysisOutput => ({
-  mentioned: false,
-  mention_type: null,
-  total_mentions: 0,
+const defaultAnalysisOutput = (sourceHint: SourceHit, brandMatch: BrandMatchResult, note: string): AnalysisOutput => ({
+  mentioned: brandMatch.found,
+  mention_type: brandMatch.found ? 'direct_name' : null,
+  total_mentions: brandMatch.matchCount,
   first_mention_sentence: null,
   prominence_score: 0,
   mention_context: 'not_mentioned',
@@ -183,14 +189,21 @@ export class AnalysisService {
     let failed = 0
     let analysisCostUsd = 0
 
+    const aliases = buildAliases(
+      this.ctx.config.name,
+      this.ctx.config.domain,
+      this.ctx.config.aliases,
+    )
+
     for (const response of toAnalyze) {
       const sourceHint = sourceCitationHint(this.ctx.config.domain, response.sources)
+      const brandMatch = findBrandMentions(response.rawResponse, aliases)
       const queryText = queryMap.get(response.queryId) ?? ''
 
       const prompt = buildPrompt({
         companyName: this.ctx.config.name,
         domain: this.ctx.config.domain,
-        aliases: [this.ctx.config.name, this.ctx.config.domain],
+        aliases,
         competitors: this.ctx.config.competitors.map((competitor) => ({
           domain: competitor.domain,
           name: competitor.name ?? competitor.domain,
@@ -198,6 +211,7 @@ export class AnalysisService {
         query: queryText,
         responseText: response.rawResponse,
         sourceHint,
+        brandMatch,
       })
 
       let parsed: AnalysisOutput
@@ -230,8 +244,24 @@ export class AnalysisService {
         } catch (retryError) {
           failed += 1
           const note = retryError instanceof Error ? retryError.message : String(retryError)
-          parsed = defaultAnalysisOutput(sourceHint, note)
+          parsed = defaultAnalysisOutput(sourceHint, brandMatch, note)
         }
+      }
+
+      // Phase 3: Post-LLM verification & override
+      if (brandMatch.found && !parsed.mentioned) {
+        parsed = {
+          ...parsed,
+          mentioned: true,
+          mention_type: parsed.mention_type ?? 'direct_name',
+          mention_context: parsed.mention_context === 'not_mentioned' ? 'passing_mention' : parsed.mention_context,
+          total_mentions: Math.max(parsed.total_mentions, brandMatch.matchCount),
+          sentiment: parsed.sentiment === 'not_mentioned' ? 'neutral' : parsed.sentiment,
+        }
+      }
+
+      if (!brandMatch.found && parsed.mentioned && parsed.mention_type !== 'indirect') {
+        parsed = { ...parsed, mention_type: 'indirect' }
       }
 
       const analysisCost = tokenCostUsd(usageInput, usageOutput, {

@@ -58,6 +58,7 @@ export interface GooseAEOConfig {
   domain: string
   name: string
   description?: string
+  aliases?: string[]
   competitors: CompetitorConfig[]
   providers: ConfigProvider[]
   analysis: {

@@ -9,6 +9,7 @@ export const rawConfigSchema = z.object({
   domain: z.string().min(1),
   name: z.string().min(1),
   description: z.string().optional(),
+  aliases: z.array(z.string()).optional(),
   competitors: z
     .array(
       z.object({
@@ -27,7 +28,7 @@ export const rawConfigSchema = z.object({
     .min(1),
   analysis: z.object({
     provider: providerIdSchema.default('openai'),
-    model: z.string().min(1).default('gpt-5.4-mini'),
+    model: z.string().min(1).default('gpt-5.4'),
   }),
   query_limit: z.number().int().min(1).max(500).default(100),
   db_path: z.string().min(1).default('./goose-aeo.db'),
@@ -58,6 +59,7 @@ export const buildDefaultConfig = (domain: string, name: string): GooseAEOConfig
   domain,
   name,
   description: undefined,
+  aliases: undefined,
   competitors: [],
   providers: [
     { id: 'perplexity', model: defaultProviderModels.perplexity },
@@ -66,7 +68,7 @@ export const buildDefaultConfig = (domain: string, name: string): GooseAEOConfig
   ],
   analysis: {
     provider: 'openai',
-    model: 'gpt-5.4-mini',
+    model: 'gpt-5.4',
   },
   queryLimit: 100,
   dbPath: './goose-aeo.db',

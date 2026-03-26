@@ -44,9 +44,9 @@
     }
   },
   "analysis": {
-    "model": "gpt-5.4-mini",
-    "cost_per_1k_input_tokens": 0.00075,
-    "cost_per_1k_output_tokens": 0.0045,
+    "model": "gpt-5.4",
+    "cost_per_1k_input_tokens": 0.0025,
+    "cost_per_1k_output_tokens": 0.01,
     "avg_input_tokens": 800,
     "avg_output_tokens": 350
   }
