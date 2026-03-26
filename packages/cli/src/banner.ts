@@ -1,12 +1,24 @@
 import chalk from 'chalk'
 
-const ART_LINES = [
+const GOOSE_LINES = [
+  '       ___        ',
+  '      (o >        ',
+  '      / |\\       ',
+  '     /  | \\      ',
+  '    /___|__\\     ',
+  '    |  ___  |     ',
+  '    | |   | |     ',
+  '    |_|   |_|     ',
+  '     /     \\     ',
+  '    ~       ~     ',
+]
+
+const TEXT_LINES = [
   ' ██████   ██████   ██████  ███████ ███████',
   '██       ██    ██ ██    ██ ██      ██     ',
   '██   ███ ██    ██ ██    ██ ███████ █████  ',
   '██    ██ ██    ██ ██    ██      ██ ██     ',
   ' ██████   ██████   ██████  ███████ ███████',
-  '',
   '██     ██  ██████  ██████  ██   ██ ███████',
   '██     ██ ██    ██ ██   ██ ██  ██  ██     ',
   '██  █  ██ ██    ██ ██████  █████   ███████',
@@ -57,10 +69,29 @@ function gradientLine(line: string, row: number, totalRows: number): string {
     .join('')
 }
 
+function colorGooseLine(line: string): string {
+  return [...line]
+    .map((ch) => {
+      if (ch === ' ') return ch
+      if (ch === 'o' || ch === '>') return chalk.rgb(255, 165, 0)(ch) // orange beak/eye
+      if (ch === '~') return chalk.rgb(180, 140, 80)(ch) // brown feet
+      if (ch === '_' || ch === '|' || ch === '/' || ch === '\\')
+        return chalk.rgb(200, 170, 120)(ch) // brown body
+      return chalk.white(ch)
+    })
+    .join('')
+}
+
 export function getBanner(): string {
   if (!process.stdout.isTTY) return ''
 
-  const art = ART_LINES.map((line, i) => gradientLine(line, i, ART_LINES.length)).join('\n')
-  const tagline = chalk.dim('  Answer Engine Optimization Toolkit')
+  const art = TEXT_LINES.map((textLine, i) => {
+    const gooseRaw = GOOSE_LINES[i] ?? '                  '
+    const gooseColored = colorGooseLine(gooseRaw)
+    const textColored = gradientLine(textLine, i, TEXT_LINES.length)
+    return gooseColored + ' ' + textColored
+  }).join('\n')
+
+  const tagline = chalk.dim('                     Answer Engine Optimization Toolkit')
   return `\n${art}\n${tagline}\n`
 }
