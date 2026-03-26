@@ -37,12 +37,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/athina-ai/goose-aeo.git",
+    "url": "https://github.com/gooseworks-ai/goose-aeo.git",
     "directory": "packages/cli"
   },
-  "homepage": "https://github.com/athina-ai/goose-aeo",
+  "homepage": "https://github.com/gooseworks-ai/goose-aeo",
   "bugs": {
-    "url": "https://github.com/athina-ai/goose-aeo/issues"
+    "url": "https://github.com/gooseworks-ai/goose-aeo/issues"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.18.1",

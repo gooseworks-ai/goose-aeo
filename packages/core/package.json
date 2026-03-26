@@ -26,7 +26,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/athina-ai/goose-aeo.git",
+    "url": "https://github.com/gooseworks-ai/goose-aeo.git",
     "directory": "packages/core"
   },
   "dependencies": {

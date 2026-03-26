@@ -18,7 +18,7 @@ The easiest way to use Goose AEO is with [Claude Code](https://docs.anthropic.co
 **1. Clone and open in Claude Code:**
 
 ```bash
-git clone https://github.com/athina-ai/goose-aeo.git
+git clone https://github.com/gooseworks-ai/goose-aeo.git
 cd goose-aeo
 npm install && npm run build
 ```
@@ -267,7 +267,7 @@ Optional: set `GOOSE_AEO_FIRECRAWL_API_KEY` to auto-fetch your company descripti
 ## Development
 
 ```bash
-git clone https://github.com/athina-ai/goose-aeo.git
+git clone https://github.com/gooseworks-ai/goose-aeo.git
 cd goose-aeo
 npm install
 npm run build
