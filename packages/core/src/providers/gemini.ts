@@ -40,7 +40,7 @@ export const createGeminiProvider = (pricing: {
 }): Provider => ({
   id: 'gemini',
   name: 'Gemini',
-  model: 'gemini-3.1-pro',
+  model: 'gemini-3-flash-preview',
   supportsWebSearch: true,
   supportsSourceCitations: true,
   call: async (query: string, config: ProviderConfig): Promise<ProviderResponse> => {

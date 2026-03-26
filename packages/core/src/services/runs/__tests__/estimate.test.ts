@@ -19,7 +19,7 @@ const pricing: PricingConfig = {
       avgOutputTokens: 500,
     },
     gemini: {
-      model: 'gemini-3.1-pro',
+      model: 'gemini-3-flash-preview',
       costPer1kInputTokens: 0.002,
       costPer1kOutputTokens: 0.012,
       avgInputTokens: 50,

@@ -48,7 +48,7 @@ export type RawConfig = z.infer<typeof rawConfigSchema>
 export const defaultProviderModels: Record<ProviderId, string> = {
   perplexity: 'sonar-pro',
   openai: 'gpt-5.4',
-  gemini: 'gemini-3.1-pro',
+  gemini: 'gemini-3-flash-preview',
   grok: 'grok-4.20',
   claude: 'claude-sonnet-4-6',
   deepseek: 'deepseek-v4',
