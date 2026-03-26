@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import 'dotenv/config'
 import { appendFileSync, existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
