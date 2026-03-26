@@ -208,7 +208,7 @@ export class AnalysisService {
         const first = await openai.chat.completions.create({
           model,
           temperature: 0,
-          max_tokens: 1200,
+          max_completion_tokens: 1200,
           messages: [{ role: 'user', content: prompt }],
         })
 
@@ -220,7 +220,7 @@ export class AnalysisService {
           const retry = await openai.chat.completions.create({
             model,
             temperature: 0.2,
-            max_tokens: 1200,
+            max_completion_tokens: 1200,
             messages: [{ role: 'user', content: `${prompt}\n\nReturn ONLY valid JSON.` }],
           })
 

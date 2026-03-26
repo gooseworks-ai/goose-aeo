@@ -63,7 +63,7 @@ Return only a JSON array of up to 5 objects with shape {"domain": string, "name"
     model: 'gpt-5.4-mini',
     messages: [{ role: 'user', content: prompt }],
     temperature: 0,
-    max_tokens: 800,
+    max_completion_tokens: 800,
   })
 
   const text = completion.choices[0]?.message?.content ?? '[]'
