@@ -1,4 +1,5 @@
 import { existsSync } from 'node:fs'
+import net from 'node:net'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import express from 'express'
@@ -31,9 +32,32 @@ const withClient = async <T>(options: ServerOptions, fn: (client: AEOClient) => 
   }
 }
 
+const checkPort = (port: number): Promise<void> =>
+  new Promise((resolve, reject) => {
+    const tester = net
+      .createServer()
+      .once('error', (err: NodeJS.ErrnoException) => {
+        if (err.code === 'EADDRINUSE') {
+          reject(new Error(`Port ${port} is already in use. Kill the existing process or use --port <number>.`))
+        } else if (err.code === 'EACCES') {
+          reject(new Error(`Permission denied for port ${port}. Use a port number above 1024 or run with elevated privileges.`))
+        } else {
+          reject(err)
+        }
+      })
+      .once('listening', () => {
+        tester.close()
+        resolve()
+      })
+      .listen(port)
+  })
+
 export async function startDashboardServer(options: ServerOptions = {}) {
-  const app = express()
   const port = options.port ?? 3847
+
+  await checkPort(port)
+
+  const app = express()
 
   app.get('/api/status', async (_req, res) => {
     try {
@@ -176,7 +200,7 @@ export async function startDashboardServer(options: ServerOptions = {}) {
     try {
       const payload = await withClient(options, (client) => client.dashboard.recommendations(req.params.id))
       if (!payload) {
-        res.json({ error: 'No recommendations found for this run' })
+        res.status(404).json({ error: 'No recommendations found for this run' })
         return
       }
       res.json(payload)
@@ -219,14 +243,17 @@ export async function startDashboardServer(options: ServerOptions = {}) {
     })
   }
 
-  return new Promise<{ close: () => Promise<void> }>((resolve) => {
-    const server = app.listen(port, () => {
+  return new Promise<{ close: () => Promise<void> }>((resolve, reject) => {
+    const server = app.listen(port)
+    server.once('error', reject)
+    server.once('listening', () => {
+      server.removeListener('error', reject)
       resolve({
         close: () =>
-          new Promise<void>((done, reject) => {
+          new Promise<void>((done, rej) => {
             server.close((error) => {
               if (error) {
-                reject(error)
+                rej(error)
                 return
               }
               done()

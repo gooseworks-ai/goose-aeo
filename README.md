@@ -11,34 +11,9 @@ Everything runs locally -- your data stays on your machine in a SQLite database.
 <img width="6678" height="4456" alt="image" src="https://github.com/user-attachments/assets/3e14380d-ec5d-4919-9cbf-b932a54f828e" />
 
 
-## Quick Start -- Claude Code
+## Quick Start
 
-The easiest way to use Goose AEO is with [Claude Code](https://docs.anthropic.com/en/docs/claude-code). The repo includes slash commands that handle everything interactively.
-
-**1. Clone and open in Claude Code:**
-
-```bash
-git clone https://github.com/gooseworks-ai/goose-aeo.git
-cd goose-aeo
-npm install && npm run build
-```
-
-**2. Use the slash commands:**
-
-| Command | What it does |
-|---------|-------------|
-| `/aeo-setup` | Interactive setup -- asks for your domain, detects competitors, configures providers, generates queries |
-| `/aeo-run` | Runs your queries against AI engines, analyzes responses, and presents a conversational report with insights |
-| `/aeo-audit` | Scrapes your website and scores each page for AI search readability across 6 dimensions |
-| `/aeo-recommend` | Analyzes your latest run and generates actionable recommendations for improving visibility |
-
-Just type `/aeo-setup` in Claude Code to get started. It will walk you through everything -- no need to learn CLI flags or remember command sequences.
-
-The slash commands handle cost estimation, error recovery, and present results as conversational summaries instead of raw data.
-
-## Quick Start -- Manual (CLI)
-
-If you prefer running commands directly:
+No installation required -- just run with `npx`:
 
 ```bash
 # Initialize for your domain (interactive -- prompts for API keys)
@@ -56,20 +31,33 @@ npx goose-aeo dashboard
 
 Five commands to go from zero to a full AEO report.
 
+### Using with Claude Code
+
+If you use [Claude Code](https://docs.anthropic.com/en/docs/claude-code), you can run Goose AEO through interactive slash commands instead of CLI flags:
+
+| Command | What it does |
+|---------|-------------|
+| `/aeo-setup` | Interactive setup -- asks for your domain, detects competitors, configures providers, generates queries |
+| `/aeo-run` | Runs your queries against AI engines, analyzes responses, and presents a conversational report with insights |
+| `/aeo-audit` | Scrapes your website and scores each page for AI search readability across 6 dimensions |
+| `/aeo-recommend` | Analyzes your latest run and generates actionable recommendations for improving visibility |
+
+Just type `/aeo-setup` in Claude Code to get started. The slash commands handle cost estimation, error recovery, and present results as conversational summaries instead of raw data.
+
 ## What You'll Need
 
 - **Node.js >= 20**
 - **At least one AI provider API key** (see table below)
 - **An OpenAI API key for analysis** (used to analyze responses for brand mentions -- can use any provider, but OpenAI is the default)
 
-| Provider   | Default Model     | Env Var                        |
-| ---------- | ----------------- | ------------------------------ |
-| Perplexity | sonar-pro         | `GOOSE_AEO_PERPLEXITY_API_KEY` |
-| OpenAI     | gpt-4o            | `GOOSE_AEO_OPENAI_API_KEY`     |
-| Gemini     | gemini-2.0-flash  | `GOOSE_AEO_GEMINI_API_KEY`     |
-| Grok       | grok-3            | `GOOSE_AEO_GROK_API_KEY`       |
-| Claude     | claude-sonnet-4-6 | `GOOSE_AEO_CLAUDE_API_KEY`     |
-| DeepSeek   | deepseek-chat     | `GOOSE_AEO_DEEPSEEK_API_KEY`   |
+| Provider   | Default Model          | Env Var                        |
+| ---------- | ---------------------- | ------------------------------ |
+| Perplexity | sonar-pro              | `GOOSE_AEO_PERPLEXITY_API_KEY` |
+| OpenAI     | gpt-5.4                | `GOOSE_AEO_OPENAI_API_KEY`     |
+| Gemini     | gemini-3-flash-preview | `GOOSE_AEO_GEMINI_API_KEY`     |
+| Grok       | grok-4.20              | `GOOSE_AEO_GROK_API_KEY`       |
+| Claude     | claude-sonnet-4-6      | `GOOSE_AEO_CLAUDE_API_KEY`     |
+| DeepSeek   | deepseek-v4            | `GOOSE_AEO_DEEPSEEK_API_KEY`   |
 
 Set keys in a `.env` file in your working directory or export them in your shell.
 
@@ -234,11 +222,11 @@ providers:
   - id: perplexity
     model: sonar-pro
   - id: openai
-    model: gpt-4o
+    model: gpt-5.4
 
 analysis:
   provider: openai
-  model: gpt-4o-mini
+  model: gpt-5.4-mini
 
 query_limit: 100
 db_path: ./goose-aeo.db

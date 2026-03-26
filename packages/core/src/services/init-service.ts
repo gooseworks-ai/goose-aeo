@@ -1,7 +1,9 @@
+import { existsSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import OpenAI from 'openai'
 import { and, eq } from 'drizzle-orm'
 import { makeDefaultConfig, saveConfig } from '../config/load-config.js'
+import { DEFAULT_PRICING } from '../config/pricing.js'
 import { createSqliteDb } from '../db/client.js'
 import { companies, competitors } from '../db/schema.js'
 import { defaultProviderModels } from '../config/schema.js'
@@ -30,6 +32,7 @@ export interface InitOptions {
 export interface InitResult {
   configPath: string
   dbPath: string
+  pricingPath: string
   domain: string
   name: string
   description?: string
@@ -126,6 +129,10 @@ export const initProject = async (options: InitOptions): Promise<InitResult> => 
   }
 
   const configPath = saveConfig(options.cwd, config, options.configPath)
+  const pricingPath = path.resolve(options.cwd, 'pricing.json')
+  if (!existsSync(pricingPath)) {
+    writeFileSync(pricingPath, JSON.stringify(DEFAULT_PRICING, null, 2) + '\n', 'utf8')
+  }
   const dbPath = path.resolve(options.cwd, config.dbPath)
   const sqliteDb = await createSqliteDb(dbPath)
   const timestamp = nowEpochMs()
@@ -184,6 +191,7 @@ export const initProject = async (options: InitOptions): Promise<InitResult> => 
   return {
     configPath,
     dbPath,
+    pricingPath,
     domain,
     name: config.name,
     description: config.description,

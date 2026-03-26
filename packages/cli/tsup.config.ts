@@ -22,6 +22,8 @@ export default defineConfig({
     const target = path.resolve('dist/public')
     if (existsSync(dashboardPublic)) {
       cpSync(dashboardPublic, target, { recursive: true })
+    } else {
+      console.warn('[tsup] WARNING: dashboard assets not found at', dashboardPublic, '— dist/public will not be included')
     }
   },
 })

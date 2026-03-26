@@ -23,7 +23,7 @@ const pricingSchema = z.object({
   analysis: providerPricingSchema,
 })
 
-const DEFAULT_PRICING = {
+export const DEFAULT_PRICING = {
   providers: {
     perplexity: {
       model: 'sonar-pro',
@@ -35,21 +35,21 @@ const DEFAULT_PRICING = {
     openai: {
       model: 'gpt-5.4',
       cost_per_1k_input_tokens: 0.0025,
-      cost_per_1k_output_tokens: 0.015,
+      cost_per_1k_output_tokens: 0.01,
       avg_input_tokens: 50,
       avg_output_tokens: 500,
     },
     gemini: {
       model: 'gemini-3-flash-preview',
-      cost_per_1k_input_tokens: 0.002,
-      cost_per_1k_output_tokens: 0.012,
+      cost_per_1k_input_tokens: 0.0001,
+      cost_per_1k_output_tokens: 0.0004,
       avg_input_tokens: 50,
       avg_output_tokens: 350,
     },
     grok: {
       model: 'grok-4.20',
-      cost_per_1k_input_tokens: 0.003,
-      cost_per_1k_output_tokens: 0.015,
+      cost_per_1k_input_tokens: 0.002,
+      cost_per_1k_output_tokens: 0.01,
       avg_input_tokens: 50,
       avg_output_tokens: 450,
     },
@@ -62,8 +62,8 @@ const DEFAULT_PRICING = {
     },
     deepseek: {
       model: 'deepseek-v4',
-      cost_per_1k_input_tokens: 0.0003,
-      cost_per_1k_output_tokens: 0.0005,
+      cost_per_1k_input_tokens: 0.00028,
+      cost_per_1k_output_tokens: 0.00042,
       avg_input_tokens: 50,
       avg_output_tokens: 400,
     },

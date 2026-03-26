@@ -120,6 +120,10 @@ program
         throw new Error('`--domain` is required in --json mode')
       }
 
+      if (!domain && !process.stdin.isTTY) {
+        throw new Error('`--domain` is required in non-interactive mode')
+      }
+
       if (!domain) {
         const answers = await inquirer.prompt<{ domain: string; name: string }>([
           { type: 'input', name: 'domain', message: 'Company domain (e.g., athina.ai):' },
@@ -147,7 +151,7 @@ program
         }
       }
 
-      if (!json) {
+      if (!json && process.stdin.isTTY) {
         const defaultProviders: ProviderId[] = ['perplexity', 'openai', 'gemini']
         const selectedProviders =
           providerIds.length > 0
@@ -205,7 +209,7 @@ program
       }
 
       process.stdout.write(`Initialized Goose AEO for ${result.domain}\n`)
-      process.stdout.write(`Config: ${result.configPath}\nDB: ${result.dbPath}\n`)
+      process.stdout.write(`Config: ${result.configPath}\nDB: ${result.dbPath}\nPricing: ${result.pricingPath}\n`)
     } catch (error) {
       fail(error, json)
     }
@@ -654,37 +658,50 @@ program
 
       if (!existsSync(staticRoot)) {
         const workspaceRoot = resolveGooseAeoWorkspaceRoot()
-        const dashboardRoot = path.resolve(workspaceRoot, 'apps/dashboard')
-        const monorepoStatic = path.resolve(dashboardRoot, 'dist/public')
+        const isMonorepo = existsSync(path.resolve(workspaceRoot, 'turbo.json'))
 
-        if (!existsSync(monorepoStatic)) {
-          process.stdout.write('Building dashboard assets...\n')
-          const buildResult = spawnSync(
-            'npm',
-            ['run', 'build', '--workspace', 'goose-aeo-dashboard'],
-            {
-              cwd: workspaceRoot,
-              stdio: 'inherit',
-            },
-          )
+        if (isMonorepo) {
+          const dashboardRoot = path.resolve(workspaceRoot, 'apps/dashboard')
+          const monorepoStatic = path.resolve(dashboardRoot, 'dist/public')
 
-          if (buildResult.status !== 0) {
-            process.stdout.write('Warning: Could not build dashboard UI. API endpoints will still be available.\n')
+          if (!existsSync(monorepoStatic)) {
+            process.stdout.write('Building dashboard assets...\n')
+            const buildResult = spawnSync(
+              'npm',
+              ['run', 'build', '--workspace', 'goose-aeo-dashboard'],
+              {
+                cwd: workspaceRoot,
+                stdio: 'inherit',
+              },
+            )
+
+            if (buildResult.status !== 0) {
+              process.stdout.write('Warning: Could not build dashboard UI. API endpoints will still be available.\n')
+            }
           }
-        }
 
-        if (existsSync(monorepoStatic)) {
-          staticRoot = monorepoStatic
+          if (existsSync(monorepoStatic)) {
+            staticRoot = monorepoStatic
+          }
+        } else {
+          process.stdout.write('Dashboard UI assets not found. API endpoints will still be available.\n')
+          process.stdout.write('If developing locally, run `npm run build` from the monorepo root first.\n')
         }
       }
 
       const { startDashboardServer } = await import('./dashboard-server.js')
 
+      const explicitConfig = options.config as string | undefined
+      const configFile = explicitConfig
+        ? path.resolve(process.cwd(), explicitConfig)
+        : path.resolve(process.cwd(), '.goose-aeo.yml')
+      const dataCwd = existsSync(configFile) ? path.dirname(configFile) : process.cwd()
+
       await startDashboardServer({
         port: options.port,
-        configPath: options.config as string | undefined,
+        configPath: explicitConfig,
         pricingPath: options.pricingConfig as string | undefined,
-        dataCwd: process.cwd(),
+        dataCwd,
         staticRoot,
       })
 

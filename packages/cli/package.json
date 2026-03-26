@@ -40,6 +40,9 @@
     "url": "https://github.com/gooseworks-ai/goose-aeo.git",
     "directory": "packages/cli"
   },
+  "engines": {
+    "node": ">=20"
+  },
   "homepage": "https://github.com/gooseworks-ai/goose-aeo",
   "bugs": {
     "url": "https://github.com/gooseworks-ai/goose-aeo/issues"
@@ -62,6 +65,7 @@
   },
   "devDependencies": {
     "@goose-aeo/core": "file:../core",
+    "goose-aeo-dashboard": "file:../../apps/dashboard",
     "@types/node": "^20.17.50",
     "tsup": "^8.5.0",
     "tsx": "^4.21.0",
