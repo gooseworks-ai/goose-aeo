@@ -22,14 +22,6 @@ const toCamelConfig = (raw: ReturnType<typeof rawConfigSchema.parse>): GooseAEOC
     dbPath: raw.db_path,
     queriesBackup: raw.queries_backup,
     budgetLimitUsd: raw.budget_limit_usd,
-    schedule: raw.schedule,
-    alerts: raw.alerts
-      ? {
-          visibilityRateDrop: raw.alerts.visibility_rate_drop,
-          prominenceScoreDrop: raw.alerts.prominence_score_drop,
-          shareOfVoiceDrop: raw.alerts.share_of_voice_drop,
-        }
-      : undefined,
   }
 }
 
@@ -46,14 +38,6 @@ const toRawConfig = (config: GooseAEOConfig): unknown => {
     db_path: config.dbPath,
     queries_backup: config.queriesBackup,
     budget_limit_usd: config.budgetLimitUsd ?? null,
-    schedule: config.schedule ?? null,
-    alerts: config.alerts
-      ? {
-          visibility_rate_drop: config.alerts.visibilityRateDrop,
-          prominence_score_drop: config.alerts.prominenceScoreDrop,
-          share_of_voice_drop: config.alerts.shareOfVoiceDrop,
-        }
-      : undefined,
   }
 }
 

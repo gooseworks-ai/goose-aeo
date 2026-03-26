@@ -7,8 +7,6 @@ import { ReportService } from './services/reports/report-service.js'
 import { DiffService } from './services/diff/diff-service.js'
 import { CostsService } from './services/costs/costs-service.js'
 import { StatusService } from './services/status/status-service.js'
-import { ScheduleService } from './services/schedule/schedule-service.js'
-import { AlertsService } from './services/alerts/alerts-service.js'
 import { DashboardService } from './services/dashboard/dashboard-service.js'
 import { AuditService } from './services/audit/audit-service.js'
 import { RecommendationService } from './services/recommendations/recommendation-service.js'
@@ -29,8 +27,6 @@ export class AEOClient {
   readonly diffService: DiffService
   readonly costsService: CostsService
   readonly statusService: StatusService
-  readonly scheduleService: ScheduleService
-  readonly alertsService: AlertsService
   readonly dashboardService: DashboardService
   readonly auditService: AuditService
   readonly recommendationService: RecommendationService
@@ -44,8 +40,6 @@ export class AEOClient {
     this.diffService = new DiffService(this.context)
     this.costsService = new CostsService(this.context)
     this.statusService = new StatusService(this.context)
-    this.scheduleService = new ScheduleService(this.context)
-    this.alertsService = new AlertsService(this.context)
     this.dashboardService = new DashboardService(this.context)
     this.auditService = new AuditService(this.context)
     this.recommendationService = new RecommendationService(this.context)
@@ -82,13 +76,6 @@ export class AEOClient {
 
   status = async () => {
     return this.statusService.get()
-  }
-
-  schedule = {
-    setCron: (cron: string) => this.scheduleService.setCron(cron),
-    setFrequency: (frequency: 'daily' | 'weekly') => this.scheduleService.setFrequency(frequency),
-    remove: () => this.scheduleService.remove(),
-    status: () => this.scheduleService.status(),
   }
 
   dashboard = {

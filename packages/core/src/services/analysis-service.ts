@@ -8,7 +8,6 @@ import { safeJsonParse, stripCodeFences } from '../utils/json.js'
 import { normalizeDomain } from '../utils/domain.js'
 import { tokenCostUsd } from '../utils/cost.js'
 import { computeAndStoreRunMetrics } from './runs/compute-metrics.js'
-import { AlertsService } from './alerts/alerts-service.js'
 import type { AEOContext } from '../context.js'
 import type { AnalysisInput, AnalyzeSummary } from '../types/index.js'
 
@@ -316,24 +315,6 @@ export class AnalysisService {
 
     await computeAndStoreRunMetrics(this.ctx, runId)
 
-    let alerts: AnalyzeSummary['alerts'] = []
-    let alertDispatch: AnalyzeSummary['alertDispatch'] = {
-      sentToSlack: false,
-      sentToEmail: false,
-      previousRunId: null,
-    }
-
-    if (input.emitAlerts !== false) {
-      const alertsService = new AlertsService(this.ctx)
-      const dispatched = await alertsService.dispatch(runId)
-      alerts = dispatched.alerts
-      alertDispatch = {
-        sentToSlack: dispatched.sentToSlack,
-        sentToEmail: dispatched.sentToEmail,
-        previousRunId: dispatched.previousRunId,
-      }
-    }
-
     return {
       runId,
       responsesAnalyzed: responses.length,
@@ -341,8 +322,6 @@ export class AnalysisService {
       skipped,
       failed,
       analysisCostUsd,
-      alerts,
-      alertDispatch,
     }
   }
 }

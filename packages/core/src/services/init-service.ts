@@ -26,7 +26,6 @@ export interface InitOptions {
   analysisProvider?: ProviderId
   analysisModel?: string
   budgetLimitUsd?: number | null
-  schedule?: string | null
 }
 
 export interface InitResult {
@@ -125,7 +124,6 @@ export const initProject = async (options: InitOptions): Promise<InitResult> => 
       model: options.analysisModel ?? base.analysis.model,
     },
     budgetLimitUsd: options.budgetLimitUsd ?? base.budgetLimitUsd,
-    schedule: options.schedule ?? base.schedule,
   }
 
   const configPath = saveConfig(options.cwd, config, options.configPath)
@@ -140,7 +138,6 @@ export const initProject = async (options: InitOptions): Promise<InitResult> => 
   const companyConfigSnapshot = JSON.stringify({
     providers: config.providers,
     query_limit: config.queryLimit,
-    schedule: config.schedule,
     analysis: config.analysis,
   })
 

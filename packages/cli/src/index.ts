@@ -14,7 +14,6 @@ import {
   type ProviderId,
   type RunCreateOptions,
 } from '@goose-aeo/core'
-import { startMCPServer } from './mcp/server.js'
 import { getBanner } from './banner.js'
 
 const program = new Command()
@@ -441,7 +440,6 @@ program
   .option('--run <runId>', 'run id (default latest)')
   .option('--model <model>', 'analysis model')
   .option('--reanalyze', 'reanalyze even if records exist', false)
-  .option('--no-alerts', 'skip alert dispatch')
   .option('--json', 'machine-readable output', false)
   .option('--config <path>', 'config path')
   .action(async (options) => {
@@ -454,7 +452,6 @@ program
         runId: options.run,
         model: options.model,
         reanalyze: options.reanalyze,
-        emitAlerts: options.alerts !== false,
       })
       spinner?.stop()
 
@@ -466,17 +463,6 @@ program
       process.stdout.write(`Analyzed run ${result.runId}\n`)
       process.stdout.write(`Inserted: ${result.inserted}, skipped: ${result.skipped}, failed: ${result.failed}\n`)
       process.stdout.write(`Analysis cost: $${result.analysisCostUsd.toFixed(4)}\n`)
-      if (result.alerts.length > 0) {
-        process.stdout.write(`Alerts (${result.alerts.length}):\n`)
-        result.alerts.forEach((alert) => {
-          process.stdout.write(
-            `- ${alert.metric}: ${alert.previous.toFixed(4)} -> ${alert.current.toFixed(4)} (drop ${alert.drop.toFixed(4)})\n`,
-          )
-        })
-        process.stdout.write(
-          `Dispatch: slack=${result.alertDispatch.sentToSlack}, email=${result.alertDispatch.sentToEmail}\n`,
-        )
-      }
     } catch (error) {
       fail(error, json)
     } finally {
@@ -715,122 +701,6 @@ program
       process.stdout.write(`Dashboard ready at ${url}\n`)
     } catch (error) {
       fail(error, false)
-    }
-  })
-
-program
-  .command('mcp')
-  .description('Start Goose AEO MCP server')
-  .option('--config <path>', 'config path')
-  .action(async (options) => {
-    try {
-      process.stderr.write('Starting Goose AEO MCP server on stdio...\n')
-      await startMCPServer({
-        cwd: process.cwd(),
-        configPath: options.config as string | undefined,
-      })
-    } catch (error) {
-      fail(error, false)
-    }
-  })
-
-const scheduleCommand = program
-  .command('schedule')
-  .description('Manage schedule settings')
-
-scheduleCommand
-  .command('set')
-  .description('Set run schedule')
-  .option('--cron <cron>', 'cron expression')
-  .option('--frequency <frequency>', 'daily|weekly')
-  .option('--json', 'machine-readable output', false)
-  .option('--config <path>', 'config path')
-  .action(async (options) => {
-    const json = Boolean(options.json)
-    const client = await AEOClient.create({ cwd: process.cwd(), configPath: options.config })
-
-    try {
-      if ((options.cron && options.frequency) || (!options.cron && !options.frequency)) {
-        throw new Error('Provide exactly one of --cron or --frequency.')
-      }
-
-      const result = options.cron
-        ? client.schedule.setCron(String(options.cron))
-        : (() => {
-            const frequency = String(options.frequency)
-            if (frequency !== 'daily' && frequency !== 'weekly') {
-              throw new Error("--frequency must be either 'daily' or 'weekly'.")
-            }
-
-            return client.schedule.setFrequency(frequency)
-          })()
-
-      if (json) {
-        printJson(result)
-        return
-      }
-
-      process.stdout.write(`Schedule set: ${result.schedule ?? 'none'}\n`)
-      if (result.suggestedCronCommand) {
-        process.stdout.write(`Cron expression: ${result.cron}\n`)
-        process.stdout.write(`Add this to crontab:\n${result.suggestedCronCommand}\n`)
-      }
-    } catch (error) {
-      fail(error, json)
-    } finally {
-      client.close()
-    }
-  })
-
-scheduleCommand
-  .command('remove')
-  .description('Remove schedule')
-  .option('--json', 'machine-readable output', false)
-  .option('--config <path>', 'config path')
-  .action(async (options) => {
-    const json = Boolean(options.json)
-    const client = await AEOClient.create({ cwd: process.cwd(), configPath: options.config })
-
-    try {
-      const result = client.schedule.remove()
-      if (json) {
-        printJson(result)
-        return
-      }
-
-      process.stdout.write('Schedule removed.\n')
-    } catch (error) {
-      fail(error, json)
-    } finally {
-      client.close()
-    }
-  })
-
-scheduleCommand
-  .command('status')
-  .description('Show schedule status')
-  .option('--json', 'machine-readable output', false)
-  .option('--config <path>', 'config path')
-  .action(async (options) => {
-    const json = Boolean(options.json)
-    const client = await AEOClient.create({ cwd: process.cwd(), configPath: options.config })
-
-    try {
-      const result = client.schedule.status()
-      if (json) {
-        printJson(result)
-        return
-      }
-
-      process.stdout.write(`Schedule: ${result.schedule ?? 'none'}\n`)
-      process.stdout.write(`Cron: ${result.cron ?? 'none'}\n`)
-      if (result.suggestedCronCommand) {
-        process.stdout.write(`Suggested crontab line:\n${result.suggestedCronCommand}\n`)
-      }
-    } catch (error) {
-      fail(error, json)
-    } finally {
-      client.close()
     }
   })
 

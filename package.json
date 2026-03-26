@@ -1,6 +1,6 @@
 {
   "name": "goose-aeo-monorepo",
-  "private": true,
+  "private": false,
   "version": "0.1.0",
   "description": "Open-source Answer Engine Optimization (AEO) toolkit",
   "license": "MIT",

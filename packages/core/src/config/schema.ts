@@ -34,14 +34,6 @@ export const rawConfigSchema = z.object({
   db_path: z.string().min(1).default('./goose-aeo.db'),
   queries_backup: z.string().optional(),
   budget_limit_usd: z.number().nullable().optional(),
-  schedule: z.string().nullable().optional(),
-  alerts: z
-    .object({
-      visibility_rate_drop: z.number().positive().optional(),
-      prominence_score_drop: z.number().positive().optional(),
-      share_of_voice_drop: z.number().positive().optional(),
-    })
-    .optional(),
 })
 
 export type RawConfig = z.infer<typeof rawConfigSchema>
@@ -74,5 +66,4 @@ export const buildDefaultConfig = (domain: string, name: string): GooseAEOConfig
   dbPath: './goose-aeo.db',
   queriesBackup: './queries.json',
   budgetLimitUsd: null,
-  schedule: null,
 })

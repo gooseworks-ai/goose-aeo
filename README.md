@@ -146,7 +146,6 @@ Analyze provider responses from a run for brand mentions, sentiment, and ranking
 --run <runId>               Run ID (defaults to latest)
 --model <model>             Override analysis model
 --reanalyze                 Re-analyze even if results exist
---no-alerts                 Skip alert dispatch
 ```
 
 ### `goose-aeo report`
@@ -190,21 +189,6 @@ Start a local web dashboard with charts and run details.
 --pricing-config <path>     Custom pricing config path
 ```
 
-### `goose-aeo schedule`
-
-```bash
-goose-aeo schedule set --frequency daily    # or weekly
-goose-aeo schedule set --cron "0 9 * * 1"   # custom cron
-goose-aeo schedule status                    # show current schedule
-goose-aeo schedule remove                    # remove schedule
-```
-
-### `goose-aeo mcp`
-
-Start an MCP (Model Context Protocol) stdio server for integration with Claude Code and other AI tools.
-
-Exposed tools: `aeo_status`, `aeo_run`, `aeo_report`, `aeo_diff`, `aeo_costs`, `aeo_list_queries`.
-
 ## Configuration
 
 The `.goose-aeo.yml` file is created during `init`. Key fields:
@@ -231,23 +215,6 @@ analysis:
 query_limit: 100
 db_path: ./goose-aeo.db
 budget_limit_usd: null
-
-alerts:
-  visibility_rate_drop: 0.05
-  prominence_score_drop: 0.1
-  share_of_voice_drop: 0.02
-```
-
-### Alert Configuration (Optional)
-
-```
-GOOSE_AEO_ALERT_SLACK_WEBHOOK_URL=    # Slack alerts on metric drops
-GOOSE_AEO_ALERT_EMAIL_TO=             # Email recipient for alerts
-GOOSE_AEO_ALERT_EMAIL_FROM=           # Email sender address
-GOOSE_AEO_SMTP_HOST=
-GOOSE_AEO_SMTP_PORT=
-GOOSE_AEO_SMTP_USER=
-GOOSE_AEO_SMTP_PASS=
 ```
 
 Optional: set `GOOSE_AEO_FIRECRAWL_API_KEY` to auto-fetch your company description during `init`.

@@ -69,12 +69,6 @@ export interface GooseAEOConfig {
   dbPath: string
   queriesBackup?: string
   budgetLimitUsd?: number | null
-  schedule?: string | null
-  alerts?: {
-    visibilityRateDrop?: number
-    prominenceScoreDrop?: number
-    shareOfVoiceDrop?: number
-  }
 }
 
 export interface PricingModelEntry {
@@ -130,21 +124,10 @@ export interface RunSummary {
   errors: string[]
 }
 
-export interface AlertEvent {
-  metric: 'visibility_rate' | 'avg_prominence_score' | 'share_of_voice'
-  previous: number
-  current: number
-  drop: number
-  threshold: number
-  runId: string
-  previousRunId: string
-}
-
 export interface AnalysisInput {
   runId?: string
   model?: string
   reanalyze?: boolean
-  emitAlerts?: boolean
 }
 
 export interface AnalyzeSummary {
@@ -154,12 +137,6 @@ export interface AnalyzeSummary {
   skipped: number
   failed: number
   analysisCostUsd: number
-  alerts: AlertEvent[]
-  alertDispatch: {
-    sentToSlack: boolean
-    sentToEmail: boolean
-    previousRunId: string | null
-  }
 }
 
 export interface MetricDelta {
@@ -202,12 +179,6 @@ export interface StatusResult {
   } | null
   dbPath: string
   dbSizeMb: number
-}
-
-export interface ScheduleStatus {
-  schedule: string | null
-  cron: string | null
-  suggestedCronCommand: string | null
 }
 
 export interface ReportResult {

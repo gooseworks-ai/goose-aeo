@@ -63,7 +63,7 @@ Show brief progress: "Analyzing responses for brand mentions..."
 Parse the result and note:
 - How many responses were analyzed
 - Analysis cost
-- Any alerts triggered (metric drops from previous run)
+- Any notable metric changes from previous run
 
 ## Step 5: Generate Report
 
@@ -89,7 +89,7 @@ Parse the JSON report and present a **conversational summary** to the user. Do N
 - Highlight the best-performing provider
 - Highlight the worst-performing provider
 - If share of voice data is available, mention top competitors
-- If any alerts were triggered, explain what dropped and by how much
+- If any metrics dropped from a previous run, explain what changed
 
 **Actionable Recommendations:**
 Based on the results, suggest 2-3 things the user could do:
@@ -102,8 +102,7 @@ Based on the results, suggest 2-3 things the user could do:
 Offer the user these options:
 1. **"See the dashboard"** — Run `npx goose-aeo@latest dashboard` to open a visual dashboard. If the user is working from a client subdirectory (e.g., `gooseworks/`), use `npx goose-aeo@latest dashboard <client-dir>` from the parent directory instead.
 2. **"Compare with a previous run"** — If there are 2+ runs, offer to run a diff
-3. **"Set up a schedule"** — Ask if they want weekly or daily automated runs
-4. **"Refine queries"** — If results suggest some queries aren't relevant, offer to adjust
+3. **"Refine queries"** — If results suggest some queries aren't relevant, offer to adjust
 
 ## Error Handling
 
