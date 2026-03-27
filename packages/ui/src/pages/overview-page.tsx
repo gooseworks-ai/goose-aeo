@@ -3,6 +3,7 @@ import { useDashboardData } from '../hooks/use-dashboard-data.js'
 import { MetricCard } from '../components/cards/metric-card.js'
 import { MetricGrid } from '../components/cards/metric-grid.js'
 import { AreaChart } from '../components/charts/area-chart.js'
+import { BarChart } from '../components/charts/bar-chart.js'
 import { RankingRow } from '../components/tables/ranking-row.js'
 import { EmptyState } from '../components/common/empty-state.js'
 import { LoadingSkeleton } from '../components/common/loading-skeleton.js'
@@ -140,7 +141,16 @@ export function OverviewPage({ onNavigate }: OverviewPageProps) {
   const totalResponses = competitors?.totalResponses ?? 0
   const avgProminence = overallMetrics['avg_prominence_score'] ?? 0
   const avgSentiment = overallMetrics['avg_sentiment_score'] ?? 0
-  const providerCount = runMetrics.filter((g) => g.provider !== null).length
+  const providerMetrics = runMetrics.filter((g) => g.provider !== null)
+  const providerCount = providerMetrics.length
+
+  // Provider breakdown data for bar chart
+  const providerVisibilityData = providerMetrics
+    .map((g) => ({
+      name: g.provider ?? 'Unknown',
+      value: Math.round((g.metrics['visibility_rate'] ?? 0) * 1000) / 10,
+    }))
+    .sort((a, b) => b.value - a.value)
 
   return (
     <div className="space-y-6">
@@ -168,20 +178,103 @@ export function OverviewPage({ onNavigate }: OverviewPageProps) {
         />
       </MetricGrid>
 
-      {/* Visibility Over Time */}
-      <div className="rounded-lg border border-[#e7e5e4] bg-white p-6">
-        <h2 className="text-lg font-semibold text-[#0c0a09] mb-1">Brand Visibility</h2>
-        <p className="text-sm text-[#78716c] mb-4">
-          Visibility rate across AI providers over time
-        </p>
-        {trendLoading ? (
-          <LoadingSkeleton rows={3} />
-        ) : trendData.length > 0 ? (
-          <AreaChart data={trendData} dataKey="value" height={280} />
-        ) : (
-          <EmptyState title="No trend data" description="More runs are needed to display a trend." />
-        )}
+      {/* Visibility Trend + Provider Breakdown side by side */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Visibility Over Time */}
+        <div className="rounded-lg border border-[#e7e5e4] bg-white p-6">
+          <h2 className="text-lg font-semibold text-[#0c0a09] mb-1">Visibility Trend</h2>
+          <p className="text-sm text-[#78716c] mb-4">
+            Visibility rate across AI providers over time
+          </p>
+          {trendLoading ? (
+            <LoadingSkeleton rows={3} />
+          ) : trendData.length > 0 ? (
+            <AreaChart data={trendData} dataKey="value" height={280} />
+          ) : (
+            <EmptyState title="No trend data" description="More runs are needed to display a trend." />
+          )}
+        </div>
+
+        {/* Visibility by Provider */}
+        <div className="rounded-lg border border-[#e7e5e4] bg-white p-6">
+          <h2 className="text-lg font-semibold text-[#0c0a09] mb-1">Visibility by Provider</h2>
+          <p className="text-sm text-[#78716c] mb-4">
+            Brand mention rate per AI search engine
+          </p>
+          {providerVisibilityData.length > 0 ? (
+            <BarChart data={providerVisibilityData} height={280} />
+          ) : (
+            <EmptyState title="No provider data" description="Run an analysis to see per-provider visibility." />
+          )}
+        </div>
       </div>
+
+      {/* Provider Details: Prominence & Sentiment */}
+      {providerMetrics.length > 0 && (
+        <div className="rounded-lg border border-[#e7e5e4] bg-white p-6">
+          <h2 className="text-lg font-semibold text-[#0c0a09] mb-1">Provider Breakdown</h2>
+          <p className="text-sm text-[#78716c] mb-4">
+            Prominence, sentiment, and citation rates by AI provider
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-[#e7e5e4]">
+                  <th className="text-left py-2.5 px-3 text-xs font-medium text-[#78716c] uppercase tracking-wider">Provider</th>
+                  <th className="text-right py-2.5 px-3 text-xs font-medium text-[#78716c] uppercase tracking-wider">Visibility</th>
+                  <th className="text-right py-2.5 px-3 text-xs font-medium text-[#78716c] uppercase tracking-wider">Prominence</th>
+                  <th className="text-right py-2.5 px-3 text-xs font-medium text-[#78716c] uppercase tracking-wider">Sentiment</th>
+                  <th className="text-right py-2.5 px-3 text-xs font-medium text-[#78716c] uppercase tracking-wider">Citation Rate</th>
+                  <th className="text-right py-2.5 px-3 text-xs font-medium text-[#78716c] uppercase tracking-wider">Top Rec Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                {providerMetrics
+                  .sort((a, b) => (b.metrics['visibility_rate'] ?? 0) - (a.metrics['visibility_rate'] ?? 0))
+                  .map((g) => {
+                    const vis = g.metrics['visibility_rate']
+                    const prom = g.metrics['avg_prominence']
+                    const sent = g.metrics['avg_sentiment']
+                    const cite = g.metrics['citation_rate']
+                    const topRec = g.metrics['top_recommendation_rate']
+                    return (
+                      <tr
+                        key={g.provider}
+                        className="border-b border-[#e7e5e4] last:border-0 hover:bg-[#fafaf9] cursor-pointer"
+                        onClick={() => onNavigate?.('responses', { model: g.provider?.toLowerCase() })}
+                      >
+                        <td className="py-2.5 px-3 font-medium text-[#0c0a09]">{g.provider}</td>
+                        <td className="text-right py-2.5 px-3">
+                          <span className={vis !== undefined && vis > 0 ? 'text-[#16a34a] font-medium' : 'text-[#78716c]'}>
+                            {vis !== undefined ? `${(vis * 100).toFixed(1)}%` : '—'}
+                          </span>
+                        </td>
+                        <td className="text-right py-2.5 px-3 text-[#0c0a09]">
+                          {prom !== undefined ? prom.toFixed(2) : '—'}
+                        </td>
+                        <td className="text-right py-2.5 px-3">
+                          <span className={
+                            sent !== undefined
+                              ? sent > 0.3 ? 'text-[#16a34a]' : sent < -0.3 ? 'text-[#dc2626]' : 'text-[#78716c]'
+                              : 'text-[#78716c]'
+                          }>
+                            {sent !== undefined ? sent.toFixed(2) : '—'}
+                          </span>
+                        </td>
+                        <td className="text-right py-2.5 px-3 text-[#0c0a09]">
+                          {cite !== undefined ? `${(cite * 100).toFixed(1)}%` : '—'}
+                        </td>
+                        <td className="text-right py-2.5 px-3 text-[#0c0a09]">
+                          {topRec !== undefined ? `${(topRec * 100).toFixed(1)}%` : '—'}
+                        </td>
+                      </tr>
+                    )
+                  })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Brand Ranking */}
       {competitorsLoading ? (
