@@ -1,6 +1,6 @@
 {
   "name": "goose-aeo",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Open-source Answer Engine Optimization (AEO) toolkit. Track how AI search engines mention your brand.",
   "type": "module",
   "main": "./dist/index.js",

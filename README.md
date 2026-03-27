@@ -1,5 +1,9 @@
 # Goose AEO
 
+[![npm](https://img.shields.io/npm/v/goose-aeo)](https://www.npmjs.com/package/goose-aeo) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+> **Beta Notice:** This toolkit is currently in beta. APIs and interfaces may change between versions. Please report any issues on [GitHub](https://github.com/gooseworks-ai/goose-aeo/issues).
+
 Open-source Answer Engine Optimization (AEO) toolkit that can be used by AI agents like Claude Code, Codex, Cursor, and [Gooseworks](https://gooseworks.ai).
 
 Track how AI search engines mention your brand, monitor visibility over time, and get actionable recommendations.
