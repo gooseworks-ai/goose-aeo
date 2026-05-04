@@ -1,0 +1,15 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+.turbo
+dist
+coverage
+*.db
+*.sqlite
+*.sqlite3
+.env
+.env.*
+audit-full.json
+agent-transcripts
+terminals

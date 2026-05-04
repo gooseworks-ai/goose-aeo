@@ -1,0 +1,65 @@
+name: Weekly AEO Run
+
+on:
+  schedule:
+    - cron: "0 9 * * 4"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: weekly-aeo-run
+  cancel-in-progress: false
+
+env:
+  REGION: us-central1
+  JOB_NAME: goose-aeo-weekly
+
+jobs:
+  run-weekly-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate required GitHub Actions settings
+        shell: bash
+        env:
+          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+          GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          GCP_DEPLOY_SERVICE_ACCOUNT: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$GCP_PROJECT_ID" ]]; then
+            echo "Missing GitHub Actions variable GCP_PROJECT_ID" >&2
+            exit 1
+          fi
+
+          for secret_name in \
+            GCP_WORKLOAD_IDENTITY_PROVIDER \
+            GCP_DEPLOY_SERVICE_ACCOUNT; do
+            if [[ -z "${!secret_name}" ]]; then
+              echo "Missing GitHub Actions secret ${secret_name}" >&2
+              exit 1
+            fi
+          done
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+
+      - name: Execute weekly Cloud Run job
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud run jobs execute "${{ env.JOB_NAME }}" \
+            --project "${{ vars.GCP_PROJECT_ID }}" \
+            --region "${{ env.REGION }}" \
+            --wait
