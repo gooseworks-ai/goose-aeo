@@ -1,0 +1,229 @@
+name: Deploy Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/**"
+      - "packages/**"
+      - "deploy/cloudrun/**"
+      - ".github/workflows/deploy-cloud-run.yml"
+      - "package.json"
+      - "package-lock.json"
+      - "turbo.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-cloud-run-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REGION: us-central1
+  REPOSITORY: goose-aeo
+  SERVICE_NAME: goose-aeo-dashboard
+  JOB_NAME: goose-aeo-weekly
+  BUCKET_NAME: goose-aeo-data-${{ vars.GCP_PROJECT_ID }}
+  DATA_MOUNT_PATH: /var/lib/goose-aeo
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate required GitHub Actions settings
+        shell: bash
+        env:
+          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+          GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          GCP_DEPLOY_SERVICE_ACCOUNT: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+          GCP_RUNTIME_SERVICE_ACCOUNT: ${{ secrets.GCP_RUNTIME_SERVICE_ACCOUNT }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$GCP_PROJECT_ID" ]]; then
+            echo "Missing GitHub Actions variable GCP_PROJECT_ID" >&2
+            exit 1
+          fi
+
+          for secret_name in \
+            GCP_WORKLOAD_IDENTITY_PROVIDER \
+            GCP_DEPLOY_SERVICE_ACCOUNT \
+            GCP_RUNTIME_SERVICE_ACCOUNT; do
+            if [[ -z "${!secret_name}" ]]; then
+              echo "Missing GitHub Actions secret ${secret_name}" >&2
+              exit 1
+            fi
+          done
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+
+      - name: Enable required Google Cloud APIs
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud services enable \
+            run.googleapis.com \
+            artifactregistry.googleapis.com \
+            secretmanager.googleapis.com \
+            storage.googleapis.com \
+            --project "${{ vars.GCP_PROJECT_ID }}"
+
+      - name: Configure Docker auth
+        run: gcloud auth configure-docker "${{ env.REGION }}-docker.pkg.dev" --quiet
+
+      - name: Ensure Artifact Registry exists
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if ! gcloud artifacts repositories describe "${{ env.REPOSITORY }}" \
+            --location "${{ env.REGION }}" \
+            --project "${{ vars.GCP_PROJECT_ID }}" >/dev/null 2>&1; then
+            gcloud artifacts repositories create "${{ env.REPOSITORY }}" \
+              --repository-format docker \
+              --location "${{ env.REGION }}" \
+              --project "${{ vars.GCP_PROJECT_ID }}"
+          fi
+
+      - name: Ensure data bucket exists
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if ! gcloud storage buckets describe "gs://${{ env.BUCKET_NAME }}" \
+            --project "${{ vars.GCP_PROJECT_ID }}" >/dev/null 2>&1; then
+            gcloud storage buckets create "gs://${{ env.BUCKET_NAME }}" \
+              --location "${{ env.REGION }}" \
+              --project "${{ vars.GCP_PROJECT_ID }}"
+          fi
+
+      - name: Resolve Secret Manager mappings
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          required_secret_names=(
+            GOOSE_AEO_OPENAI_API_KEY
+            GOOSE_AEO_DASHBOARD_ALLOWED_EMAIL_DOMAIN
+            GOOSE_AEO_DASHBOARD_SHARED_PASSWORD
+          )
+          optional_provider_secret_names=(
+            GOOSE_AEO_PERPLEXITY_API_KEY
+            GOOSE_AEO_CLAUDE_API_KEY
+            GOOSE_AEO_GEMINI_API_KEY
+            GOOSE_AEO_GROK_API_KEY
+          )
+
+          for secret_name in "${required_secret_names[@]}"; do
+            if ! gcloud secrets describe "$secret_name" --project "${{ vars.GCP_PROJECT_ID }}" >/dev/null 2>&1; then
+              echo "Missing required Secret Manager secret: $secret_name" >&2
+              exit 1
+            fi
+          done
+
+          common_secret_mappings=(
+            "GOOSE_AEO_OPENAI_API_KEY=GOOSE_AEO_OPENAI_API_KEY:latest"
+          )
+
+          for secret_name in "${optional_provider_secret_names[@]}"; do
+            if gcloud secrets describe "$secret_name" --project "${{ vars.GCP_PROJECT_ID }}" >/dev/null 2>&1; then
+              common_secret_mappings+=("$secret_name=$secret_name:latest")
+            else
+              echo "Optional Secret Manager secret not found, skipping mapping: $secret_name"
+            fi
+          done
+
+          dashboard_secret_mappings=(
+            "${common_secret_mappings[@]}"
+            "GOOSE_AEO_DASHBOARD_ALLOWED_EMAIL_DOMAIN=GOOSE_AEO_DASHBOARD_ALLOWED_EMAIL_DOMAIN:latest"
+            "GOOSE_AEO_DASHBOARD_SHARED_PASSWORD=GOOSE_AEO_DASHBOARD_SHARED_PASSWORD:latest"
+          )
+          job_secret_mappings=("${common_secret_mappings[@]}")
+
+          {
+            printf 'DASHBOARD_SECRET_MAPPINGS=%s\n' "$(IFS=,; echo "${dashboard_secret_mappings[*]}")"
+            printf 'JOB_SECRET_MAPPINGS=%s\n' "$(IFS=,; echo "${job_secret_mappings[*]}")"
+          } >> "$GITHUB_ENV"
+
+      - name: Build and push dashboard image
+        shell: bash
+        run: |
+          set -euo pipefail
+          DASHBOARD_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/dashboard:${{ github.sha }}"
+          docker build -f deploy/cloudrun/dashboard.Dockerfile -t "$DASHBOARD_IMAGE" .
+          docker push "$DASHBOARD_IMAGE"
+          echo "DASHBOARD_IMAGE=$DASHBOARD_IMAGE" >> "$GITHUB_ENV"
+
+      - name: Build and push runner image
+        shell: bash
+        run: |
+          set -euo pipefail
+          RUNNER_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/runner:${{ github.sha }}"
+          docker build -f deploy/cloudrun/runner.Dockerfile -t "$RUNNER_IMAGE" .
+          docker push "$RUNNER_IMAGE"
+          echo "RUNNER_IMAGE=$RUNNER_IMAGE" >> "$GITHUB_ENV"
+
+      - name: Deploy dashboard service
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud run deploy "${{ env.SERVICE_NAME }}" \
+            --project "${{ vars.GCP_PROJECT_ID }}" \
+            --region "${{ env.REGION }}" \
+            --image "${{ env.DASHBOARD_IMAGE }}" \
+            --allow-unauthenticated \
+            --service-account "${{ secrets.GCP_RUNTIME_SERVICE_ACCOUNT }}" \
+            --cpu 1 \
+            --memory 512Mi \
+            --min-instances 0 \
+            --max-instances 2 \
+            --port 8080 \
+            --set-env-vars "GOOSE_AEO_DATA_CWD=${{ env.DATA_MOUNT_PATH }}" \
+            --set-secrets "${{ env.DASHBOARD_SECRET_MAPPINGS }}" \
+            --clear-volumes \
+            --add-volume "name=aeodata,type=cloud-storage,bucket=${{ env.BUCKET_NAME }}" \
+            --clear-volume-mounts \
+            --add-volume-mount "volume=aeodata,mount-path=${{ env.DATA_MOUNT_PATH }}"
+
+      - name: Deploy weekly runner job
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud run jobs deploy "${{ env.JOB_NAME }}" \
+            --project "${{ vars.GCP_PROJECT_ID }}" \
+            --region "${{ env.REGION }}" \
+            --image "${{ env.RUNNER_IMAGE }}" \
+            --service-account "${{ secrets.GCP_RUNTIME_SERVICE_ACCOUNT }}" \
+            --cpu 1 \
+            --memory 1Gi \
+            --max-retries 1 \
+            --task-timeout 3600 \
+            --set-env-vars "GOOSE_AEO_DATA_CWD=${{ env.DATA_MOUNT_PATH }},GOOSE_AEO_QUERY_LIMIT=25,GOOSE_AEO_RUN_CONCURRENCY=1,GOOSE_AEO_BUDGET_LIMIT_USD=20,GOOSE_AEO_AUDIT_PAGES=25,GOOSE_AEO_CONFIG_PATH=${{ env.DATA_MOUNT_PATH }}/.goose-aeo.yml" \
+            --set-secrets "${{ env.JOB_SECRET_MAPPINGS }}" \
+            --clear-volumes \
+            --add-volume "name=aeodata,type=cloud-storage,bucket=${{ env.BUCKET_NAME }}" \
+            --clear-volume-mounts \
+            --add-volume-mount "volume=aeodata,mount-path=${{ env.DATA_MOUNT_PATH }}"
+
+      - name: Output dashboard URL
+        run: |
+          gcloud run services describe "${{ env.SERVICE_NAME }}" \
+            --project "${{ vars.GCP_PROJECT_ID }}" \
+            --region "${{ env.REGION }}" \
+            --format="value(status.url)"

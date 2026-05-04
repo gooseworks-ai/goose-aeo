@@ -55,6 +55,15 @@ npx goose-aeo@latest report
 npx goose-aeo@latest dashboard
 ```
 
+### Production on Google Cloud Run
+
+For a small, cost-safe production setup with:
+- public dashboard deployment,
+- weekly Thursday automation (`queries generate` + `run` + `analyze` + `audit`),
+- persistent shared data storage,
+
+use the runbook at [`docs/deploy-cloud-run-weekly.md`](docs/deploy-cloud-run-weekly.md).
+
 ## What You'll Need
 
 - **Node.js >= 20**

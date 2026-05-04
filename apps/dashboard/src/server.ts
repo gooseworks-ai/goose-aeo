@@ -12,6 +12,41 @@ interface ServerOptions {
   appRoot?: string
 }
 
+const timingSafeEqual = (left: string, right: string): boolean => {
+  if (left.length !== right.length) {
+    return false
+  }
+
+  let diff = 0
+  for (let index = 0; index < left.length; index += 1) {
+    diff |= left.charCodeAt(index) ^ right.charCodeAt(index)
+  }
+
+  return diff === 0
+}
+
+const parseBasicAuthHeader = (headerValue: string | undefined): { username: string; password: string } | null => {
+  if (!headerValue || !headerValue.startsWith('Basic ')) {
+    return null
+  }
+
+  const encoded = headerValue.slice('Basic '.length).trim()
+  if (!encoded) {
+    return null
+  }
+
+  const decoded = Buffer.from(encoded, 'base64').toString('utf8')
+  const separatorIndex = decoded.indexOf(':')
+  if (separatorIndex < 0) {
+    return null
+  }
+
+  return {
+    username: decoded.slice(0, separatorIndex),
+    password: decoded.slice(separatorIndex + 1),
+  }
+}
+
 const parseIntParam = (value: string | undefined, fallback: number): number => {
   const parsed = Number(value)
   return Number.isFinite(parsed) ? parsed : fallback
@@ -34,9 +69,55 @@ const withClient = async <T>(options: ServerOptions, fn: (client: AEOClient) => 
 export async function startDashboardServer(options: ServerOptions = {}) {
   const app = express()
   const port = options.port ?? 3847
+  const basicAuthUser = process.env.GOOSE_AEO_DASHBOARD_BASIC_AUTH_USER
+  const basicAuthPassword = process.env.GOOSE_AEO_DASHBOARD_BASIC_AUTH_PASSWORD
+  const allowedEmailDomain = process.env.GOOSE_AEO_DASHBOARD_ALLOWED_EMAIL_DOMAIN
+    ?.trim()
+    .replace(/^@+/, '')
+    .toLowerCase()
+  const sharedPassword = process.env.GOOSE_AEO_DASHBOARD_SHARED_PASSWORD
+  const basicAuthEnabled = Boolean(
+    (basicAuthUser && basicAuthPassword) || (allowedEmailDomain && sharedPassword),
+  )
   const appRoot =
     options.appRoot ??
     path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+
+  if (basicAuthEnabled) {
+    app.use((req, res, next) => {
+      if (req.path === '/healthz') {
+        next()
+        return
+      }
+
+      const parsed = parseBasicAuthHeader(req.headers.authorization)
+      if (parsed) {
+        if (allowedEmailDomain && sharedPassword) {
+          const normalizedUser = parsed.username.trim().toLowerCase()
+          const domainMatch = normalizedUser.endsWith(`@${allowedEmailDomain}`)
+          if (domainMatch && timingSafeEqual(parsed.password, sharedPassword)) {
+            next()
+            return
+          }
+        } else if (
+          basicAuthUser &&
+          basicAuthPassword &&
+          timingSafeEqual(parsed.username, basicAuthUser) &&
+          timingSafeEqual(parsed.password, basicAuthPassword)
+        ) {
+          next()
+          return
+        }
+      }
+
+      res.setHeader('WWW-Authenticate', 'Basic realm="Goose AEO Dashboard"')
+      res.status(401).json({ error: 'Authentication required' })
+    })
+  }
+
+  app.get('/healthz', (_req, res) => {
+    res.status(200).json({ ok: true })
+  })
 
   app.get('/api/status', async (_req, res) => {
     try {
